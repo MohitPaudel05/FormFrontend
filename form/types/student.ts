@@ -45,9 +45,23 @@ export const disabilitySchema = z.object({
 
 // ===== CITIZENSHIP DTO =====
 export const citizenshipSchema = z.object({
-  citizenshipNumber: z.string().optional().or(z.literal("")),
-  citizenshipIssueDate: z.string().optional().or(z.literal("")),
-  citizenshipIssueDistrict: z.string().optional().or(z.literal("")),
+  citizenshipNumber: z.string().min(1, "Citizenship Number is required"),
+  citizenshipIssueDate: z.string().min(1, "Issue Date is required"),
+  citizenshipIssueDistrict: z.string().min(1, "Issue District is required"),
+  citizenshipFrontPhoto: z.instanceof(File).refine(
+    (file) => file.size <= 2 * 1024 * 1024,
+    "Front photo must be less than 2MB"
+  ).refine(
+    (file) => ["image/jpeg", "image/jpg", "image/png"].includes(file.type),
+    "Front photo must be JPG or PNG"
+  ),
+  citizenshipBackPhoto: z.instanceof(File).refine(
+    (file) => file.size <= 2 * 1024 * 1024,
+    "Back photo must be less than 2MB"
+  ).refine(
+    (file) => ["image/jpeg", "image/jpg", "image/png"].includes(file.type),
+    "Back photo must be JPG or PNG"
+  ),
 });
 
 // ===== ADDRESS DTO =====
@@ -95,18 +109,22 @@ export const parentsSchema = z.array(z.object({
   annualFamilyIncome: z.string().optional(),
 }));
 
-// ===== PROGRAM ENROLLMENT DTO =====
-export const programEnrollmentSchema = z.object({
-  faculty: z.string().min(1, "Faculty is required"),
-  program: z.string().min(1, "Program is required"),
-  courseLevel: z.string().min(1, "Course Level is required"),
-  academicYear: z.string().min(1, "Academic Year is required"),
-  semesterOrClass: z.string().optional().or(z.literal("")),
+// ===== ACADEMIC SESSION DTO =====
+export const academicSessionSchema = z.object({
+  academicYear: z.enum(["FirstYear", "SecondYear", "ThirdYear", "FourthYear"]),
+  semester: z.enum(["FirstSemester", "SecondSemester", "ThirdSemester", "FourthSemester", "FifthSemester", "SixthSemester"]),
   section: z.string().optional().or(z.literal("")),
   rollNumber: z.string().optional().or(z.literal("")),
-  registrationNumber: z.string().optional().or(z.literal("")),
-  enrollDate: z.string().optional().or(z.literal("")),
-  academicStatus: z.string().optional().or(z.literal("")),
+  status: z.enum(["Active", "OnHold", "Completed", "DroppedOut"]),
+});
+
+// ===== PROGRAM ENROLLMENT DTO =====
+export const programEnrollmentSchema = z.object({
+  faculty: z.enum(["Science", "Management", "Humanities", "Engineering", "Other"]),
+  degreeProgram: z.enum(["BSc", "BBA", "BA", "BE", "Masters", "PlusTwo"]),
+  enrollmentDate: z.string().optional(),
+  registrationNumber: z.string().min(1, "Registration Number is required"),
+  academicSessions: z.array(academicSessionSchema),
 });
 
 // ===== ACADEMIC HISTORY DTO =====
@@ -118,6 +136,27 @@ export const academicHistorySchema = z.object({
   divisionGPA: z.enum(["First", "Second", "Third", "GPA", "Other"]),
   marksheet: z.instanceof(File).optional(),
   provisional: z.instanceof(File).optional(),
+  photo: z.instanceof(File).refine(
+    (file) => file.size <= 2 * 1024 * 1024,
+    "Photo must be less than 2MB"
+  ).refine(
+    (file) => ["image/jpeg", "image/jpg", "image/png"].includes(file.type),
+    "Photo must be JPG or PNG"
+  ),
+  signature: z.instanceof(File).refine(
+    (file) => file.size <= 1 * 1024 * 1024,
+    "Signature must be less than 1MB"
+  ).refine(
+    (file) => ["image/jpeg", "image/jpg", "image/png"].includes(file.type),
+    "Signature must be JPG or PNG"
+  ),
+  characterCertificate: z.instanceof(File).refine(
+    (file) => file.size <= 2 * 1024 * 1024,
+    "Character Certificate must be less than 2MB"
+  ).refine(
+    (file) => file.type === "application/pdf",
+    "Character Certificate must be PDF"
+  ),
 });
 
 // ===== BANK DETAIL DTO =====

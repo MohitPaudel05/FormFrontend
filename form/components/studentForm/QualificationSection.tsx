@@ -29,8 +29,11 @@ const QualificationSection: React.FC = () => {
         institution: "", 
         passedYear: "", 
         divisionGPA: "First", 
-        marksheet: undefined,
-        provisional: undefined
+        marksheet: null as any,
+        provisional: null as any,
+        photo: null as any,
+        signature: null as any,
+        characterCertificate: null as any
       });
     }
   }, []);
@@ -168,37 +171,123 @@ const QualificationSection: React.FC = () => {
                     </p>
                   )}
                 </div>
+              </div>
 
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-2">Marksheet Document</label>
-                  <Controller
-                    control={control}
-                    name={`academicHistories.${index}.marksheet`}
-                    render={({ field }) => (
-                      <input
-                        type="file"
-                        accept=".pdf,.jpg,.png"
-                        onChange={(e) => field.onChange(e.target.files?.[0])}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:border-yellow-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200"
-                      />
+              {/* Document Uploads Section */}
+              <div className="pt-4 border-t-2 border-yellow-100">
+                <h4 className="font-semibold text-gray-800 mb-4">📸 Document & Photo Uploads</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  {/* Photo Upload */}
+                  <div>
+                    <label className="block font-semibold text-gray-700 mb-2">Photo <span className="text-red-500">*</span> (Passport Size)</label>
+                    <Controller
+                      control={control}
+                      name={`academicHistories.${index}.photo`}
+                      render={({ field }) => (
+                        <input
+                          type="file"
+                          accept=".jpg,.jpeg,.png"
+                          onChange={(e) => field.onChange(e.target.files?.[0])}
+                          className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 ${
+                            errors.academicHistories?.[index]?.photo ? "border-red-500" : "border-gray-300 focus:ring-2 focus:ring-yellow-200 focus:border-yellow-500 hover:border-gray-400"
+                          }`}
+                        />
+                      )}
+                    />
+                    {errors.academicHistories?.[index]?.photo && (
+                      <p className="text-red-600 text-sm mt-2 font-medium">
+                        {errors.academicHistories[index]?.photo?.message}
+                      </p>
                     )}
-                  />
+                    <p className="text-sm text-gray-500 mt-1">JPG/PNG, Max 2MB</p>
+                  </div>
+
+                  {/* Signature Upload */}
+                  <div>
+                    <label className="block font-semibold text-gray-700 mb-2">Signature <span className="text-red-500">*</span></label>
+                    <Controller
+                      control={control}
+                      name={`academicHistories.${index}.signature`}
+                      render={({ field }) => (
+                        <input
+                          type="file"
+                          accept=".jpg,.jpeg,.png"
+                          onChange={(e) => field.onChange(e.target.files?.[0])}
+                          className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 ${
+                            errors.academicHistories?.[index]?.signature ? "border-red-500" : "border-gray-300 focus:ring-2 focus:ring-yellow-200 focus:border-yellow-500 hover:border-gray-400"
+                          }`}
+                        />
+                      )}
+                    />
+                    {errors.academicHistories?.[index]?.signature && (
+                      <p className="text-red-600 text-sm mt-2 font-medium">
+                        {errors.academicHistories[index]?.signature?.message}
+                      </p>
+                    )}
+                    <p className="text-sm text-gray-500 mt-1">JPG/PNG, Max 1MB</p>
+                  </div>
+
+                  {/* Character Certificate Upload */}
+                  <div>
+                    <label className="block font-semibold text-gray-700 mb-2">Character Certificate <span className="text-red-500">*</span></label>
+                    <Controller
+                      control={control}
+                      name={`academicHistories.${index}.characterCertificate`}
+                      render={({ field }) => (
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          onChange={(e) => field.onChange(e.target.files?.[0])}
+                          className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 ${
+                            errors.academicHistories?.[index]?.characterCertificate ? "border-red-500" : "border-gray-300 focus:ring-2 focus:ring-yellow-200 focus:border-yellow-500 hover:border-gray-400"
+                          }`}
+                        />
+                      )}
+                    />
+                    {errors.academicHistories?.[index]?.characterCertificate && (
+                      <p className="text-red-600 text-sm mt-2 font-medium">
+                        {errors.academicHistories[index]?.characterCertificate?.message}
+                      </p>
+                    )}
+                    <p className="text-sm text-gray-500 mt-1">PDF, Max 2MB</p>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block font-semibold text-gray-700 mb-2">Provisional Document</label>
-                  <Controller
-                    control={control}
-                    name={`academicHistories.${index}.provisional`}
-                    render={({ field }) => (
-                      <input
-                        type="file"
-                        accept=".pdf,.jpg,.png"
-                        onChange={(e) => field.onChange(e.target.files?.[0])}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:border-yellow-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200"
-                      />
-                    )}
-                  />
+                {/* Marksheet & Provisional Documents */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+                  <div>
+                    <label className="block font-semibold text-gray-700 mb-2">Marksheet Document</label>
+                    <Controller
+                      control={control}
+                      name={`academicHistories.${index}.marksheet`}
+                      render={({ field }) => (
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.png"
+                          onChange={(e) => field.onChange(e.target.files?.[0])}
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:border-yellow-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200"
+                        />
+                      )}
+                    />
+                    <p className="text-sm text-gray-500 mt-1">PDF/JPG/PNG</p>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-gray-700 mb-2">Provisional / Admit Card</label>
+                    <Controller
+                      control={control}
+                      name={`academicHistories.${index}.provisional`}
+                      render={({ field }) => (
+                        <input
+                          type="file"
+                          accept=".pdf,.jpg,.png"
+                          onChange={(e) => field.onChange(e.target.files?.[0])}
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:border-yellow-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200"
+                        />
+                      )}
+                    />
+                    <p className="text-sm text-gray-500 mt-1">PDF/JPG/PNG</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -214,8 +303,11 @@ const QualificationSection: React.FC = () => {
               institution: "", 
               passedYear: "", 
               divisionGPA: "First", 
-              marksheet: undefined,
-              provisional: undefined
+              marksheet: null as any,
+              provisional: null as any,
+              photo: null as any,
+              signature: null as any,
+              characterCertificate: null as any
             });
           }}
           className="w-full py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-700 hover:to-yellow-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-lg"

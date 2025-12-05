@@ -1,25 +1,32 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { useFormContext, useWatch } from "react-hook-form";
+import React, { useState } from "react";
+import { useFormContext, useFieldArray, Controller } from "react-hook-form";
 import { StudentFull } from "../../types/student";
-import { 
-  facultyOptions, 
-  degreeProgramOptions, 
-  academicYearOptions, 
-  semesterOptions, 
-  academicStatusOptions 
-} from "../../constants/enums";
+
+const facultyOptions = ["Science", "Management", "Humanities", "Engineering", "Other"];
+const degreeProgramOptions = ["BSc", "BBA", "BA", "BE", "Masters", "PlusTwo"];
+const academicYearOptions = ["FirstYear", "SecondYear", "ThirdYear", "FourthYear"];
+const semesterOptions = ["FirstSemester", "SecondSemester", "ThirdSemester", "FourthSemester", "FifthSemester", "SixthSemester"];
+const academicStatusOptions = ["Active", "OnHold", "Completed", "DroppedOut"];
 
 const EnrollmentSection: React.FC = () => {
-  const { register, control, setValue, formState: { errors } } = useFormContext<StudentFull>();
+  const { register, control, formState: { errors } } = useFormContext<StudentFull>();
+  
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "programEnrollments.academicSessions",
+  });
 
-  const selectedFaculty = useWatch({ control, name: "enrollment.faculty" });
-
-  useEffect(() => {
-    // Reset program if faculty changes
-    setValue("enrollment.program", "BSc");
-  }, [selectedFaculty, setValue]);
+  const handleAddSession = () => {
+    append({
+      academicYear: "FirstYear",
+      semester: "FirstSemester",
+      section: "",
+      rollNumber: "",
+      status: "Active",
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -28,151 +35,190 @@ const EnrollmentSection: React.FC = () => {
         <h2 className="text-3xl font-bold text-gray-900">Academic Enrollment Details</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <label className="block font-semibold text-gray-700 mb-2">Faculty/School <span className="text-red-500">*</span></label>
-          <select 
-            {...register("enrollment.faculty")} 
-            className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 ${
-              errors.enrollment?.faculty
-                ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                : "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
-            }`}
-          >
-            <option value="">Select Faculty</option>
-            {facultyOptions.map((f) => (
-              <option key={f} value={f}>{f}</option>
-            ))}
-          </select>
-          {errors.enrollment?.faculty && (
-            <p className="text-red-600 text-sm mt-2 font-medium">{errors.enrollment?.faculty?.message}</p>
-          )}
-        </div>
+      {/* Program Enrollment Details */}
+      <div className="border-2 border-indigo-200 p-6 rounded-xl bg-indigo-50">
+        <h3 className="font-bold text-lg text-gray-800 mb-5 flex items-center gap-2">
+          <span className="text-indigo-600">📚</span> Program Enrollment
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className="block font-semibold text-gray-700 mb-2">Faculty <span className="text-red-500">*</span></label>
+            <select 
+              {...register("programEnrollments.faculty")} 
+              className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 ${
+                errors.programEnrollments?.faculty
+                  ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                  : "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
+              }`}
+            >
+              <option value="">Select Faculty</option>
+              {facultyOptions.map((f) => (
+                <option key={f} value={f}>{f}</option>
+              ))}
+            </select>
+            {errors.programEnrollments?.faculty && (
+              <p className="text-red-600 text-sm mt-2 font-medium">{errors.programEnrollments.faculty.message}</p>
+            )}
+          </div>
 
-        <div>
-          <label className="block font-semibold text-gray-700 mb-2">Program <span className="text-red-500">*</span></label>
-          <select 
-            {...register("enrollment.program")} 
-            className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 ${
-              errors.enrollment?.program
-                ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                : "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
-            }`}
-          >
-            <option value="">Select Program</option>
-            {degreeProgramOptions.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
-          {errors.enrollment?.program && (
-            <p className="text-red-600 text-sm mt-2 font-medium">{errors.enrollment?.program?.message}</p>
-          )}
-        </div>
+          <div>
+            <label className="block font-semibold text-gray-700 mb-2">Degree Program <span className="text-red-500">*</span></label>
+            <select 
+              {...register("programEnrollments.degreeProgram")} 
+              className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 ${
+                errors.programEnrollments?.degreeProgram
+                  ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                  : "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
+              }`}
+            >
+              <option value="">Select Program</option>
+              {degreeProgramOptions.map((p) => (
+                <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
+            {errors.programEnrollments?.degreeProgram && (
+              <p className="text-red-600 text-sm mt-2 font-medium">{errors.programEnrollments.degreeProgram.message}</p>
+            )}
+          </div>
 
-        <div>
-          <label className="block font-semibold text-gray-700 mb-2">Course Level <span className="text-red-500">*</span></label>
-          <select 
-            {...register("enrollment.courseLevel")} 
-            className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 ${
-              errors.enrollment?.courseLevel
-                ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                : "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
-            }`}
-          >
-            <option value="">Select Course Level</option>
-            {academicYearOptions.map((cl) => (
-              <option key={cl.value} value={cl.value}>{cl.label}</option>
-            ))}
-          </select>
-          {errors.enrollment?.courseLevel && (
-            <p className="text-red-600 text-sm mt-2 font-medium">{errors.enrollment?.courseLevel?.message}</p>
-          )}
+          <div>
+            <label className="block font-semibold text-gray-700 mb-2">Registration Number <span className="text-red-500">*</span></label>
+            <input 
+              type="text" 
+              {...register("programEnrollments.registrationNumber")} 
+              className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
+                errors.programEnrollments?.registrationNumber
+                  ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                  : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
+              }`}
+              placeholder="e.g., REG-2024-001"
+            />
+            {errors.programEnrollments?.registrationNumber && (
+              <p className="text-red-600 text-sm mt-2 font-medium">{errors.programEnrollments.registrationNumber.message}</p>
+            )}
+          </div>
         </div>
+      </div>
 
-        <div>
-          <label className="block font-semibold text-gray-700 mb-2">Academic Year <span className="text-red-500">*</span></label>
-          <select 
-            {...register("enrollment.academicYear")} 
-            className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 ${
-              errors.enrollment?.academicYear
-                ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                : "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
-            }`}
-          >
-            <option value="">Select Academic Year</option>
-            {academicYearOptions.map((ay) => (
-              <option key={ay.value} value={ay.value}>{ay.label}</option>
-            ))}
-          </select>
-          {errors.enrollment?.academicYear && (
-            <p className="text-red-600 text-sm mt-2 font-medium">{errors.enrollment?.academicYear?.message}</p>
-          )}
-        </div>
+      {/* Academic Sessions */}
+      <div className="space-y-4">
+        <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2">
+          <span className="text-indigo-600">📋</span> Academic Sessions
+        </h3>
+        
+        {fields.map((field, index) => (
+          <div key={field.id} className="p-6 border-2 border-indigo-200 rounded-xl bg-white hover:border-indigo-300 transition-all duration-200">
+            <div className="flex justify-between items-center mb-5">
+              <h4 className="text-lg font-semibold text-gray-800">Session {index + 1}</h4>
+              {fields.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => remove(index)}
+                  className="px-3 py-1 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg text-sm font-medium transition-all duration-200"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
 
-        <div>
-          <label className="block font-semibold text-gray-700 mb-2">Semester/Class</label>
-          <select 
-            {...register("enrollment.semesterOrClass")} 
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
-          >
-            <option value="">Select Semester</option>
-            {semesterOptions.map((s) => (
-              <option key={s.value} value={s.value}>{s.label}</option>
-            ))}
-          </select>
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block font-semibold text-gray-700 mb-2">Academic Year <span className="text-red-500">*</span></label>
+                <select 
+                  {...register(`programEnrollments.academicSessions.${index}.academicYear`)} 
+                  className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 ${
+                    errors.programEnrollments?.academicSessions?.[index]?.academicYear
+                      ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                      : "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
+                  }`}
+                >
+                  <option value="">Select Year</option>
+                  {academicYearOptions.map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+                {errors.programEnrollments?.academicSessions?.[index]?.academicYear && (
+                  <p className="text-red-600 text-sm mt-2 font-medium">
+                    {errors.programEnrollments.academicSessions[index]?.academicYear?.message}
+                  </p>
+                )}
+              </div>
 
-        <div>
-          <label className="block font-semibold text-gray-700 mb-2">Section</label>
-          <input 
-            type="text" 
-            {...register("enrollment.section")} 
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
-            placeholder="e.g., A, B, C"
-          />
-        </div>
+              <div>
+                <label className="block font-semibold text-gray-700 mb-2">Semester <span className="text-red-500">*</span></label>
+                <select 
+                  {...register(`programEnrollments.academicSessions.${index}.semester`)} 
+                  className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 ${
+                    errors.programEnrollments?.academicSessions?.[index]?.semester
+                      ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                      : "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
+                  }`}
+                >
+                  <option value="">Select Semester</option>
+                  {semesterOptions.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                {errors.programEnrollments?.academicSessions?.[index]?.semester && (
+                  <p className="text-red-600 text-sm mt-2 font-medium">
+                    {errors.programEnrollments.academicSessions[index]?.semester?.message}
+                  </p>
+                )}
+              </div>
 
-        <div>
-          <label className="block font-semibold text-gray-700 mb-2">Roll Number</label>
-          <input 
-            type="text" 
-            {...register("enrollment.rollNumber")} 
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
-            placeholder="e.g., 001"
-          />
-        </div>
+              <div>
+                <label className="block font-semibold text-gray-700 mb-2">Section</label>
+                <input 
+                  type="text" 
+                  {...register(`programEnrollments.academicSessions.${index}.section`)} 
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
+                  placeholder="e.g., A, B, C"
+                />
+              </div>
 
-        <div>
-          <label className="block font-semibold text-gray-700 mb-2">Registration Number</label>
-          <input 
-            type="text" 
-            {...register("enrollment.registrationNumber")} 
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
-            placeholder="e.g., REG-2024-001"
-          />
-        </div>
+              <div>
+                <label className="block font-semibold text-gray-700 mb-2">Roll Number</label>
+                <input 
+                  type="text" 
+                  {...register(`programEnrollments.academicSessions.${index}.rollNumber`)} 
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
+                  placeholder="e.g., 001"
+                />
+              </div>
 
-        <div>
-          <label className="block font-semibold text-gray-700 mb-2">Enrollment Date</label>
-          <input 
-            type="date" 
-            {...register("enrollment.enrollDate")} 
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
-          />
-        </div>
+              <div>
+                <label className="block font-semibold text-gray-700 mb-2">Status <span className="text-red-500">*</span></label>
+                <select 
+                  {...register(`programEnrollments.academicSessions.${index}.status`)} 
+                  className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 ${
+                    errors.programEnrollments?.academicSessions?.[index]?.status
+                      ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                      : "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
+                  }`}
+                >
+                  <option value="">Select Status</option>
+                  {academicStatusOptions.map((status) => (
+                    <option key={status} value={status}>{status}</option>
+                  ))}
+                </select>
+                {errors.programEnrollments?.academicSessions?.[index]?.status && (
+                  <p className="text-red-600 text-sm mt-2 font-medium">
+                    {errors.programEnrollments.academicSessions[index]?.status?.message}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
 
-        <div>
-          <label className="block font-semibold text-gray-700 mb-2">Academic Status</label>
-          <select 
-            {...register("enrollment.academicStatus")} 
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
-          >
-            <option value="">Select Status</option>
-            {academicStatusOptions.map((status) => (
-              <option key={status.value} value={status.value}>{status.label}</option>
-            ))}
-          </select>
-        </div>
+        <button
+          type="button"
+          onClick={handleAddSession}
+          className="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-lg"
+        >
+          <span className="text-lg">+</span> Add Academic Session
+        </button>
       </div>
     </div>
   );

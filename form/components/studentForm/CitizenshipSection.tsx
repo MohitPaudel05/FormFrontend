@@ -24,9 +24,14 @@ const CitizenshipSection: React.FC = () => {
           <input
             type="text"
             {...register("citizenship.citizenshipNumber")}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
+            className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 ${
+              errors.citizenship?.citizenshipNumber ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="Enter Citizenship Number"
           />
+          {errors.citizenship?.citizenshipNumber && (
+            <p className="text-red-500 text-sm mt-1">{errors.citizenship.citizenshipNumber.message}</p>
+          )}
         </div>
 
         <div>
@@ -34,8 +39,13 @@ const CitizenshipSection: React.FC = () => {
           <input
             type="date"
             {...register("citizenship.citizenshipIssueDate")}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
+            className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 ${
+              errors.citizenship?.citizenshipIssueDate ? "border-red-500" : "border-gray-300"
+            }`}
           />
+          {errors.citizenship?.citizenshipIssueDate && (
+            <p className="text-red-500 text-sm mt-1">{errors.citizenship.citizenshipIssueDate.message}</p>
+          )}
         </div>
 
         <div>
@@ -43,9 +53,65 @@ const CitizenshipSection: React.FC = () => {
           <input
             type="text"
             {...register("citizenship.citizenshipIssueDistrict")}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
+            className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 ${
+              errors.citizenship?.citizenshipIssueDistrict ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="Enter Issue District"
           />
+          {errors.citizenship?.citizenshipIssueDistrict && (
+            <p className="text-red-500 text-sm mt-1">{errors.citizenship.citizenshipIssueDistrict.message}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="pt-4 border-t border-gray-200">
+        <h3 className="text-xl font-bold text-gray-900 mb-4">📸 Citizenship Photos</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Citizenship Front Photo */}
+          <div>
+            <label className="block font-semibold text-gray-700 mb-2">Front Photo</label>
+            <Controller
+              control={control}
+              name="citizenship.citizenshipFrontPhoto"
+              render={({ field }) => (
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png"
+                  onChange={(e) => field.onChange(e.target.files?.[0])}
+                  className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 ${
+                    errors.citizenship?.citizenshipFrontPhoto ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+              )}
+            />
+            {errors.citizenship?.citizenshipFrontPhoto && (
+              <p className="text-red-500 text-sm mt-1">{errors.citizenship.citizenshipFrontPhoto.message}</p>
+            )}
+            <p className="text-sm text-gray-500 mt-1">JPG/PNG, Max 2MB</p>
+          </div>
+
+          {/* Citizenship Back Photo */}
+          <div>
+            <label className="block font-semibold text-gray-700 mb-2">Back Photo</label>
+            <Controller
+              control={control}
+              name="citizenship.citizenshipBackPhoto"
+              render={({ field }) => (
+                <input
+                  type="file"
+                  accept=".jpg,.jpeg,.png"
+                  onChange={(e) => field.onChange(e.target.files?.[0])}
+                  className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 ${
+                    errors.citizenship?.citizenshipBackPhoto ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+              )}
+            />
+            {errors.citizenship?.citizenshipBackPhoto && (
+              <p className="text-red-500 text-sm mt-1">{errors.citizenship.citizenshipBackPhoto.message}</p>
+            )}
+            <p className="text-sm text-gray-500 mt-1">JPG/PNG, Max 2MB</p>
+          </div>
         </div>
       </div>
 

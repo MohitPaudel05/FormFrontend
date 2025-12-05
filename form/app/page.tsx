@@ -19,56 +19,51 @@ import FinancialDetails from "@/components/studentForm/FinancialDetails";
 import ExtracurricularDetails from "@/components/studentForm/QualificationSection";
 import InterestsDetails from "@/components/studentForm/InterestsAwardsSection";
 import HostelTransportDetails from "@/components/studentForm/HostelTransportSection";
-import DocumentUploadDetails from "@/components/studentForm/DocumentUploadSection";
 import Declaration from "@/components/studentForm/DeclarationSection";
 import Button from "@/components/ui/Button";
 
 const StudentApplicationForm = () => {
   const [submitMessage, setSubmitMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  const methods = useForm<StudentFull>({
-    resolver: zodResolver(studentFullSchema),
+  const methods = useForm({
+    resolver: zodResolver(studentFullSchema) as any,
     mode: "onSubmit",
     defaultValues: {
-      personalDetail: { 
+      student: { 
         firstName: "", 
         lastName: "", 
         dateOfBirth: "",
-        nationality: "Nepali", 
-        gender: "Male",
-        maritalStatus: "Single",
-        bloodGroup: "APositive"
+        email: "",
+        mobileNumber: "",
+        gender: "Male"
       },
-      citizenshipInfo: { 
+      secondaryInfo: {
+        alternateEmail: "",
+        alternateMobileNumber: "",
+        bloodGroup: "",
+        maritalStatus: "",
+        religion: ""
+      },
+      citizenship: { 
         citizenshipNumber: "", 
-        issueDate: "", 
-        issueDistrict: "" 
+        citizenshipIssueDate: "", 
+        citizenshipIssueDistrict: "" 
       },
-      contactInfo: { 
-        email: "", 
-        primaryMobile: "" 
-      },
-      emergencyContacts: [{ 
+      emergency: { 
         emergencyContactName: "", 
         emergencyContactRelation: "Father", 
         emergencyContactNumber: "" 
-      }],
-      disability: { 
-        disabilityType: "None", 
-        description: "" 
       },
-      address: [
+      disability: { 
+        disabilityStatus: "None"
+      },
+      ethnicity: {
+        ethnicityName: "",
+        ethnicityGroup: ""
+      },
+      addresses: [
         { 
           addressType: "Permanent", 
-          province: "Province1", 
-          district: "", 
-          municipality: "", 
-          wardNumber: "", 
-          tole: "",
-          houseNumber: ""
-        },
-        { 
-          addressType: "Temporary", 
           province: "Province1", 
           district: "", 
           municipality: "", 
@@ -79,16 +74,7 @@ const StudentApplicationForm = () => {
       ],
       parents: [
         { 
-          relation: "Father", 
-          fullName: "", 
-          mobileNumber: "",
-          occupation: "",
-          designation: "",
-          organization: "",
-          email: ""
-        },
-        { 
-          relation: "Mother", 
+          parentType: "Father", 
           fullName: "", 
           mobileNumber: "",
           occupation: "",
@@ -97,32 +83,24 @@ const StudentApplicationForm = () => {
           email: ""
         }
       ],
-      enrollment: { 
+      programEnrollments: { 
         faculty: "Science", 
-        program: "BSc", 
-        courseLevel: "FirstYear", 
-        academicYear: "FirstYear" 
+        degreeProgram: "BSc",
+        registrationNumber: "",
+        academicSessions: []
       },
-      qualifications: [],
-      documents: [],
-      feeDetail: { 
-        feeCategory: "Regular" 
+      academicHistories: [],
+      scholarships: { 
+        feeCategory: "Regular"
       },
-      scholarship: { 
-        scholarshipType: "None", 
-        providerName: "", 
-        amount: "",
+      bankDetails: {
         accountHolderName: "",
         bankName: "",
         accountNumber: "",
         branch: ""
       },
-      interests: [],
-      awards: [],
-      hostelTransport: { 
-        residencyType: "DayScholar", 
-        transportMethod: "Walk" 
-      },
+      achievements: [],
+      studentExtraInfos: {},
       declaration: { 
         isDeclared: false, 
         dateOfApplication: new Date().toISOString().split("T")[0], 
@@ -131,7 +109,7 @@ const StudentApplicationForm = () => {
     },
   });
 
-  const onSubmit = async (data: StudentFull) => {
+  const onSubmit = async (data: any) => {
     setSubmitMessage(null);
     try {
       console.log("Submitting form data:", data);
@@ -159,7 +137,7 @@ const StudentApplicationForm = () => {
       alert(`❌ Validation Errors:\n\n${errorList}`);
       return;
     }
-    methods.handleSubmit(onSubmit)();
+    methods.handleSubmit(onSubmit as any)();
   };
 
   return (
@@ -250,13 +228,6 @@ const StudentApplicationForm = () => {
             <div className="group">
               <div className="bg-white p-8 rounded-2xl shadow-md hover:shadow-lg border border-gray-100 transition-all duration-300">
                 <HostelTransportDetails />
-              </div>
-            </div>
-
-            {/* Document Uploads */}
-            <div className="group">
-              <div className="bg-white p-8 rounded-2xl shadow-md hover:shadow-lg border border-gray-100 transition-all duration-300">
-                <DocumentUploadDetails />
               </div>
             </div>
 

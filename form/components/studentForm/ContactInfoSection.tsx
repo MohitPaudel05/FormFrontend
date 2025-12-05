@@ -22,16 +22,16 @@ const ContactInfoSection: React.FC = () => {
           <label className="block font-semibold text-gray-700 mb-2">Email <span className="text-red-500">*</span></label>
           <input
             type="email"
-            {...register("contactInfo.email")}
+            {...register("student.email")}
             className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
-              errors.contactInfo?.email
+              errors.student?.email
                 ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                 : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
             }`}
             placeholder="your.email@example.com"
           />
-          {errors.contactInfo?.email && (
-            <p className="text-red-600 text-sm mt-2 font-medium">{errors.contactInfo.email.message}</p>
+          {errors.student?.email && (
+            <p className="text-red-600 text-sm mt-2 font-medium">{errors.student.email.message}</p>
           )}
         </div>
 
@@ -39,7 +39,7 @@ const ContactInfoSection: React.FC = () => {
           <label className="block font-semibold text-gray-700 mb-2">Alternate Email</label>
           <input
             type="email"
-            {...register("contactInfo.alternateEmail")}
+            {...register("secondaryInfo.alternateEmail")}
             className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
             placeholder="alternate.email@example.com"
           />
@@ -49,24 +49,24 @@ const ContactInfoSection: React.FC = () => {
           <label className="block font-semibold text-gray-700 mb-2">Primary Mobile <span className="text-red-500">*</span></label>
           <input
             type="text"
-            {...register("contactInfo.primaryMobile")}
+            {...register("student.mobileNumber")}
             className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
-              errors.contactInfo?.primaryMobile
+              errors.student?.mobileNumber
                 ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                 : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
             }`}
             placeholder="98XXXXXXXXX"
           />
-          {errors.contactInfo?.primaryMobile && (
-            <p className="text-red-600 text-sm mt-2 font-medium">{errors.contactInfo.primaryMobile.message}</p>
+          {errors.student?.mobileNumber && (
+            <p className="text-red-600 text-sm mt-2 font-medium">{errors.student.mobileNumber.message}</p>
           )}
         </div>
 
         <div>
-          <label className="block font-semibold text-gray-700 mb-2">Secondary Mobile</label>
+          <label className="block font-semibold text-gray-700 mb-2">Alternate Mobile</label>
           <input
             type="text"
-            {...register("contactInfo.secondaryMobile")}
+            {...register("secondaryInfo.alternateMobileNumber")}
             className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
             placeholder="98XXXXXXXXX"
           />
