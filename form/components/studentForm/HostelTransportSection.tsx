@@ -3,12 +3,11 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import { StudentFull } from "../../types/student";
-
-const transportOptions = ["Walk", "Bicycle", "Bus", "Private Vehicle"];
+import { residencyTypeOptions, transportationMethodOptions } from "../../constants/enums";
 
 const HostelTransportSection: React.FC = () => {
   const { register, watch, formState: { errors } } = useFormContext<StudentFull>();
-  const residencyType = watch("hostelTransport.residencyType");
+  const hostellerStatus = watch("studentExtraInfos.hostellerStatus");
 
   return (
     <div className="space-y-6">
@@ -22,19 +21,20 @@ const HostelTransportSection: React.FC = () => {
         <div>
           <label className="block font-semibold text-gray-700 mb-2">Residency Type <span className="text-red-500">*</span></label>
           <select
-            {...register("hostelTransport.residencyType")}
+            {...register("studentExtraInfos.hostellerStatus")}
             className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 ${
-              errors.hostelTransport?.residencyType
+              errors.studentExtraInfos?.hostellerStatus
                 ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                 : "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
             }`}
           >
             <option value="">Select Residency Type</option>
-            <option value="Hosteller">Hosteller</option>
-            <option value="Day Scholar">Day Scholar</option>
+            {residencyTypeOptions.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
           </select>
-          {errors.hostelTransport?.residencyType && (
-            <p className="text-red-600 text-sm mt-2 font-medium">{errors.hostelTransport.residencyType.message}</p>
+          {errors.studentExtraInfos?.hostellerStatus && (
+            <p className="text-red-600 text-sm mt-2 font-medium">{errors.studentExtraInfos.hostellerStatus.message}</p>
           )}
         </div>
 
@@ -42,12 +42,12 @@ const HostelTransportSection: React.FC = () => {
         <div>
           <label className="block font-semibold text-gray-700 mb-2">Transport Method</label>
           <select
-            {...register("hostelTransport.transportMethod")}
+            {...register("studentExtraInfos.transportation")}
             className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
           >
             <option value="">Select Transport Method</option>
-            {transportOptions.map((option) => (
-              <option key={option} value={option}>{option}</option>
+            {transportationMethodOptions.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
             ))}
           </select>
         </div>

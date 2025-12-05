@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useFormContext, Controller } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { StudentFull } from "../../types/student";
+import { feeCategoryOptions, scholarshipTypeOptions } from "../../constants/enums";
 
 const FinancialDetails: React.FC = () => {
-  const { register, control, watch, formState: { errors } } = useFormContext<StudentFull>();
-  const feeCategory = watch("feeDetail.feeCategory");
+  const { register, watch, formState: { errors } } = useFormContext<StudentFull>();
+  const feeCategory = watch("scholarships.feeCategory");
+  const scholarshipType = watch("scholarships.scholarshipType");
   const [showScholarship, setShowScholarship] = useState(false);
 
   useEffect(() => {
@@ -24,21 +26,20 @@ const FinancialDetails: React.FC = () => {
       <div>
         <label className="block font-semibold text-gray-700 mb-2">Fee Category <span className="text-red-500">*</span></label>
         <select
-          {...register("feeDetail.feeCategory")}
+          {...register("scholarships.feeCategory")}
           className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 ${
-            errors.feeDetail?.feeCategory
+            errors.scholarships?.feeCategory
               ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
               : "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
           }`}
         >
           <option value="">Select Fee Category</option>
-          <option value="Regular">Regular</option>
-          <option value="Self-Financed">Self-Financed</option>
-          <option value="Scholarship">Scholarship</option>
-          <option value="Quota">Quota</option>
+          {feeCategoryOptions.map((category) => (
+            <option key={category.value} value={category.value}>{category.label}</option>
+          ))}
         </select>
-        {errors.feeDetail?.feeCategory && (
-          <p className="text-red-600 text-sm mt-2 font-medium">{errors.feeDetail.feeCategory.message}</p>
+        {errors.scholarships?.feeCategory && (
+          <p className="text-red-600 text-sm mt-2 font-medium">{errors.scholarships.feeCategory.message}</p>
         )}
       </div>
 
@@ -53,16 +54,16 @@ const FinancialDetails: React.FC = () => {
             <label className="block font-semibold text-gray-700 mb-2">Account Holder Name <span className="text-red-500">*</span></label>
             <input
               type="text"
-              {...register("scholarship.accountHolderName")}
+              {...register("bankDetails.accountHolderName")}
               className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
-                errors.scholarship?.accountHolderName
+                errors.bankDetails?.accountHolderName
                   ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                   : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
               }`}
               placeholder="Full name"
             />
-            {errors.scholarship?.accountHolderName && (
-              <p className="text-red-600 text-sm mt-2 font-medium">{errors.scholarship.accountHolderName.message}</p>
+            {errors.bankDetails?.accountHolderName && (
+              <p className="text-red-600 text-sm mt-2 font-medium">{errors.bankDetails.accountHolderName.message}</p>
             )}
           </div>
 
@@ -70,16 +71,16 @@ const FinancialDetails: React.FC = () => {
             <label className="block font-semibold text-gray-700 mb-2">Bank Name <span className="text-red-500">*</span></label>
             <input
               type="text"
-              {...register("scholarship.bankName")}
+              {...register("bankDetails.bankName")}
               className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
-                errors.scholarship?.bankName
+                errors.bankDetails?.bankName
                   ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                   : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
               }`}
               placeholder="Bank name"
             />
-            {errors.scholarship?.bankName && (
-              <p className="text-red-600 text-sm mt-2 font-medium">{errors.scholarship.bankName.message}</p>
+            {errors.bankDetails?.bankName && (
+              <p className="text-red-600 text-sm mt-2 font-medium">{errors.bankDetails.bankName.message}</p>
             )}
           </div>
 
@@ -87,16 +88,16 @@ const FinancialDetails: React.FC = () => {
             <label className="block font-semibold text-gray-700 mb-2">Account Number <span className="text-red-500">*</span></label>
             <input
               type="text"
-              {...register("scholarship.accountNumber")}
+              {...register("bankDetails.accountNumber")}
               className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
-                errors.scholarship?.accountNumber
+                errors.bankDetails?.accountNumber
                   ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                   : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
               }`}
               placeholder="Account number"
             />
-            {errors.scholarship?.accountNumber && (
-              <p className="text-red-600 text-sm mt-2 font-medium">{errors.scholarship.accountNumber.message}</p>
+            {errors.bankDetails?.accountNumber && (
+              <p className="text-red-600 text-sm mt-2 font-medium">{errors.bankDetails.accountNumber.message}</p>
             )}
           </div>
 
@@ -104,7 +105,7 @@ const FinancialDetails: React.FC = () => {
             <label className="block font-semibold text-gray-700 mb-2">Branch</label>
             <input
               type="text"
-              {...register("scholarship.branch")}
+              {...register("bankDetails.branch")}
               className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
               placeholder="Branch name"
             />
@@ -112,7 +113,7 @@ const FinancialDetails: React.FC = () => {
         </div>
       </div>
 
-      {/* Scholarship Details - Optional, appears only if Scholarship is selected */}
+      {/* Scholarship Details - Shows when Scholarship fee category is selected */}
       {showScholarship && (
         <div className="border-2 border-blue-200 p-6 rounded-xl bg-blue-50">
           <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2 mb-5">
@@ -123,57 +124,60 @@ const FinancialDetails: React.FC = () => {
             <div>
               <label className="block font-semibold text-gray-700 mb-2">Scholarship Type <span className="text-red-500">*</span></label>
               <select
-                {...register("scholarship.scholarshipType")}
+                {...register("scholarships.scholarshipType")}
                 className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 ${
-                  errors.scholarship?.scholarshipType
+                  errors.scholarships?.scholarshipType
                     ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                     : "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
                 }`}
               >
                 <option value="">Select Type</option>
-                <option value="Government">Government</option>
-                <option value="Institutional">Institutional</option>
-                <option value="Private">Private</option>
-                <option value="Other">Other</option>
+                {scholarshipTypeOptions.map((type) => (
+                  <option key={type.value} value={type.value}>{type.label}</option>
+                ))}
               </select>
-              {errors.scholarship?.scholarshipType && (
-                <p className="text-red-600 text-sm mt-2 font-medium">{errors.scholarship.scholarshipType.message}</p>
+              {errors.scholarships?.scholarshipType && (
+                <p className="text-red-600 text-sm mt-2 font-medium">{errors.scholarships.scholarshipType.message}</p>
               )}
             </div>
 
-            <div>
-              <label className="block font-semibold text-gray-700 mb-2">Scholarship Provider Name <span className="text-red-500">*</span></label>
-              <input
-                type="text"
-                {...register("scholarship.providerName")}
-                className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
-                  errors.scholarship?.providerName
-                    ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                    : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
-                }`}
-                placeholder="Organization name"
-              />
-              {errors.scholarship?.providerName && (
-                <p className="text-red-600 text-sm mt-2 font-medium">{errors.scholarship.providerName.message}</p>
-              )}
-            </div>
+            {scholarshipType && scholarshipType !== "None" && (
+              <>
+                <div>
+                  <label className="block font-semibold text-gray-700 mb-2">Scholarship Provider Name <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    {...register("scholarships.scholarshipProvider")}
+                    className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
+                      errors.scholarships?.scholarshipProvider
+                        ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                        : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
+                    }`}
+                    placeholder="Organization name"
+                  />
+                  {errors.scholarships?.scholarshipProvider && (
+                    <p className="text-red-600 text-sm mt-2 font-medium">{errors.scholarships.scholarshipProvider.message}</p>
+                  )}
+                </div>
 
-            <div>
-              <label className="block font-semibold text-gray-700 mb-2">Scholarship Amount <span className="text-red-500">*</span></label>
-              <input
-                type="number"
-                {...register("scholarship.amount")}
-                className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
-                  errors.scholarship?.amount
-                    ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                    : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
-                }`}
-                placeholder="Scholarship amount"
-              />
-              {errors.scholarship?.amount && (
-                <p className="text-red-600 text-sm mt-2 font-medium">{errors.scholarship.amount.message}</p>
-              )}
-            </div>
+                <div>
+                  <label className="block font-semibold text-gray-700 mb-2">Scholarship Amount <span className="text-red-500">*</span></label>
+                  <input
+                    type="number"
+                    {...register("scholarships.scholarshipAmount")}
+                    className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
+                      errors.scholarships?.scholarshipAmount
+                        ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
+                        : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
+                    }`}
+                    placeholder="Scholarship amount"
+                  />
+                  {errors.scholarships?.scholarshipAmount && (
+                    <p className="text-red-600 text-sm mt-2 font-medium">{errors.scholarships.scholarshipAmount.message}</p>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

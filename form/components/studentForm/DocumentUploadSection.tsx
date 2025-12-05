@@ -5,7 +5,7 @@ import { useFormContext, Controller } from "react-hook-form";
 import { StudentFull } from "../../types/student";
 
 const DocumentUploadSection: React.FC = () => {
-  const { control, register, formState: { errors } } = useFormContext<StudentFull>();
+  const { control } = useFormContext<StudentFull>();
 
   return (
     <div className="space-y-6">
@@ -26,17 +26,10 @@ const DocumentUploadSection: React.FC = () => {
                 type="file"
                 accept=".pdf,.jpg,.png"
                 onChange={(e) => field.onChange(e.target.files?.[0])}
-                className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 ${
-                  errors.documents?.[0]?.file
-                    ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                    : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
-                }`}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
             )}
           />
-          {errors.documents?.[0]?.file && (
-            <p className="text-red-600 text-sm mt-2 font-medium">{errors.documents[0]?.file?.message}</p>
-          )}
         </div>
 
         {/* Photo Upload */}
@@ -50,17 +43,10 @@ const DocumentUploadSection: React.FC = () => {
                 type="file"
                 accept=".jpg,.png"
                 onChange={(e) => field.onChange(e.target.files?.[0])}
-                className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 ${
-                  errors.documents?.[1]?.file
-                    ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                    : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
-                }`}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
               />
             )}
           />
-          {errors.documents?.[1]?.file && (
-            <p className="text-red-600 text-sm mt-2 font-medium">{errors.documents[1]?.file?.message}</p>
-          )}
         </div>
 
         {/* Signature Upload */}
@@ -74,17 +60,10 @@ const DocumentUploadSection: React.FC = () => {
                 type="file"
                 accept=".jpg,.png"
                 onChange={(e) => field.onChange(e.target.files?.[0])}
-                className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 ${
-                  errors.documents?.[2]?.file
-                    ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                    : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
-                }`}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
               />
             )}
           />
-          {errors.documents?.[2]?.file && (
-            <p className="text-red-600 text-sm mt-2 font-medium">{errors.documents[2]?.file?.message}</p>
-          )}
         </div>
 
         {/* Character Certificate Upload */}
@@ -98,17 +77,10 @@ const DocumentUploadSection: React.FC = () => {
                 type="file"
                 accept=".pdf"
                 onChange={(e) => field.onChange(e.target.files?.[0])}
-                className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 ${
-                  errors.documents?.[3]?.file
-                    ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                    : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
-                }`}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
               />
             )}
           />
-          {errors.documents?.[3]?.file && (
-            <p className="text-red-600 text-sm mt-2 font-medium">{errors.documents[3]?.file?.message}</p>
-          )}
         </div>
       </div>
     </div>

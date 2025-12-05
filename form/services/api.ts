@@ -3,10 +3,7 @@ import { StudentFull } from "../types/student";
 
 // Base Axios instance
 const api = axios.create({
-  baseURL: "http://localhost:7019/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: "https://localhost:7190/api",
 });
 
 // POST: Submit student form
@@ -26,7 +23,7 @@ export const getStudentById = async (id: number) => {
     const response = await api.get(`/student/${id}`);
     return response.data as StudentFull;
   } catch (error: any) {
-    console.error("GET student by ID error:", error.response || error.message);
+    console.error("GET student by ID error:", error.response || error.message)
     throw error;
   }
 };

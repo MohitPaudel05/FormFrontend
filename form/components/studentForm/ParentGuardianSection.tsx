@@ -4,53 +4,49 @@ import React from "react";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { StudentFull } from "../../types/student";
 
-const annualIncomeOptions = ["<5 Lakh", "5-10 Lakh", "10-20 Lakh", ">20 Lakh"];
+const annualIncomeOptions = [
+  { value: "LessThan5Lakh", label: "<5 Lakh" },
+  { value: "From5To10Lakh", label: "5-10 Lakh" },
+  { value: "From10To20Lakh", label: "10-20 Lakh" },
+  { value: "MoreThan20Lakh", label: ">20 Lakh" },
+];
 
 const ParentGuardianSection: React.FC = () => {
-  const { register, control, watch, formState: { errors } } = useFormContext<StudentFull>();
+  const { register, control, formState: { errors } } = useFormContext<StudentFull>();
 
-  const { fields, append } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name: "parents",
   });
 
-  // Ensure Father & Mother always exist
+  // Check if Guardian already exists
+  const hasGuardian = fields.some(f => f.parentType === "Guardian");
+  const guardianIndex = fields.findIndex(f => f.parentType === "Guardian");
+
+  // Initialize on component mount
+  const [initialized, setInitialized] = React.useState(false);
+  
   React.useEffect(() => {
-    const relations = fields.map(f => f.relation);
-    if (!relations.includes("Father")) {
-      append({ relation: "Father", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "" });
+    if (!initialized && fields.length === 0) {
+      append({ parentType: "Father", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "", annualFamilyIncome: "" });
+      append({ parentType: "Mother", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "", annualFamilyIncome: "" });
+      setInitialized(true);
     }
-    if (!relations.includes("Mother")) {
-      append({ relation: "Mother", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "" });
-    }
-  }, []);
+  }, [initialized, fields.length, append]);
 
-  // Show Guardian section only if emergency contact is Guardian
-  const emergencyContactRelation = watch("emergencyContacts")?.[0]?.emergencyContactRelation;
-  const hasGuardian = fields.some(f => f.relation === "Guardian");
-
-  React.useEffect(() => {
-    if (emergencyContactRelation === "Guardian" && !hasGuardian) {
-      append({ relation: "Guardian", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "", annualFamilyIncome: undefined });
-    }
-  }, [emergencyContactRelation, hasGuardian, append]);
-
-  // Separate Father, Mother, and Guardian
-  const fatherIndex = fields.findIndex(f => f.relation === "Father");
-  const motherIndex = fields.findIndex(f => f.relation === "Mother");
-  const guardianIndex = fields.findIndex(f => f.relation === "Guardian");
-
-  const renderParentSection = (index: number, relation: string, emoji: string, showIncome: boolean = false) => {
-    if (index === -1) return null;
-    const field = fields[index];
+  const renderParentSection = (index: number, relation: string, emoji: string) => {
+    if (index === -1 || !fields[index]) return null;
 
     return (
-      <div key={field.id} className={`p-6 rounded-xl border-2 transition-all duration-200 ${showIncome ? "border-cyan-300 bg-cyan-50 hover:border-cyan-400 hover:shadow-lg" : "border-gray-200 bg-white hover:border-cyan-200 hover:shadow-lg"}`}>
-        <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-4 border-b-2 border-gray-200">
-          <span className="text-3xl">{emoji}</span> {relation}'s Details
+      <div key={fields[index]?.id} className="p-6 border-2 border-gray-200 rounded-xl bg-white hover:border-blue-300 transition-all duration-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center gap-2">
+          {emoji} {relation}'s Details
         </h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+        {/* Hidden field to store parentType */}
+        <input type="hidden" {...register(`parents.${index}.parentType`)} />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Full Name */}
           <div>
             <label className="block font-semibold text-gray-700 mb-2">Full Name <span className="text-red-500">*</span></label>
@@ -87,39 +83,6 @@ const ParentGuardianSection: React.FC = () => {
             )}
           </div>
 
-          {/* Occupation */}
-          <div>
-            <label className="block font-semibold text-gray-700 mb-2">Occupation</label>
-            <input 
-              type="text" 
-              {...register(`parents.${index}.occupation`)} 
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
-              placeholder="e.g., Teacher, Engineer, Farmer"
-            />
-          </div>
-
-          {/* Designation */}
-          <div>
-            <label className="block font-semibold text-gray-700 mb-2">Designation</label>
-            <input 
-              type="text" 
-              {...register(`parents.${index}.designation`)} 
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
-              placeholder="e.g., Senior Manager, Head Teacher"
-            />
-          </div>
-
-          {/* Organization */}
-          <div>
-            <label className="block font-semibold text-gray-700 mb-2">Organization</label>
-            <input 
-              type="text" 
-              {...register(`parents.${index}.organization`)} 
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
-              placeholder="Company/Institution/Business name"
-            />
-          </div>
-
           {/* Email */}
           <div>
             <label className="block font-semibold text-gray-700 mb-2">Email</label>
@@ -137,25 +100,55 @@ const ParentGuardianSection: React.FC = () => {
               <p className="text-red-600 text-sm mt-2 font-medium">{errors.parents[index]?.email?.message}</p>
             )}
           </div>
+        </div>
 
-          {/* Annual Family Income - Only for Guardian */}
-          {showIncome && (
-            <div>
-              <label className="block font-semibold text-gray-700 mb-2">Annual Family Income <span className="text-red-500">*</span></label>
-              <select 
-                {...register(`parents.${index}.annualFamilyIncome`)} 
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
-              >
-                <option value="">Select Income Range</option>
-                {annualIncomeOptions.map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
-              {errors.parents?.[index]?.annualFamilyIncome && (
-                <p className="text-red-600 text-sm mt-2 font-medium">{errors.parents[index]?.annualFamilyIncome?.message}</p>
-              )}
-            </div>
-          )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
+          {/* Occupation */}
+          <div>
+            <label className="block font-semibold text-gray-700 mb-2">Occupation</label>
+            <input 
+              type="text" 
+              {...register(`parents.${index}.occupation`)} 
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
+              placeholder="e.g., Teacher, Engineer"
+            />
+          </div>
+
+          {/* Designation */}
+          <div>
+            <label className="block font-semibold text-gray-700 mb-2">Designation</label>
+            <input 
+              type="text" 
+              {...register(`parents.${index}.designation`)} 
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
+              placeholder="e.g., Senior Manager"
+            />
+          </div>
+
+          {/* Organization */}
+          <div>
+            <label className="block font-semibold text-gray-700 mb-2">Organization</label>
+            <input 
+              type="text" 
+              {...register(`parents.${index}.organization`)} 
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
+              placeholder="Company/Institution name"
+            />
+          </div>
+        </div>
+
+        {/* Annual Family Income */}
+        <div className="mt-5 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <label className="block font-semibold text-gray-700 mb-2">Annual Family Income</label>
+          <select 
+            {...register(`parents.${index}.annualFamilyIncome`)} 
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
+          >
+            <option value="">Select Income Range</option>
+            {annualIncomeOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
         </div>
       </div>
     );
@@ -164,43 +157,40 @@ const ParentGuardianSection: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="h-1 w-12 bg-gradient-to-r from-cyan-600 to-cyan-400 rounded"></div>
+        <div className="h-1 w-12 bg-gradient-to-r from-purple-600 to-purple-400 rounded"></div>
         <h2 className="text-3xl font-bold text-gray-900">Parent / Guardian Details</h2>
       </div>
 
-      {/* Father's Details */}
-      {renderParentSection(fatherIndex, "Father", "👨", false)}
+      <div className="space-y-5">
+        {/* Render fields by index - Father is 0, Mother is 1 */}
+        {renderParentSection(0, "Father", "👨")}
+        {renderParentSection(1, "Mother", "👩")}
 
-      {/* Mother's Details */}
-      {renderParentSection(motherIndex, "Mother", "👩", false)}
-
-      {/* Annual Family Income Section */}
-      <div className="p-6 rounded-xl border-2 border-emerald-200 bg-emerald-50 hover:border-emerald-400 transition-all duration-200">
-        <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          💰 Annual Family Income <span className="text-red-500">*</span>
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <select 
-            {...register("parents.0.annualFamilyIncome")} 
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 hover:border-gray-400 transition-all duration-200"
+        {/* Add Guardian Button - Only show if Guardian doesn't exist */}
+        {!hasGuardian && (
+          <button
+            type="button"
+            onClick={() => append({ parentType: "Guardian", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "", annualFamilyIncome: "" })}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
           >
-            <option value="">Select Income Range</option>
-            {annualIncomeOptions.map(opt => (
-              <option key={opt} value={opt}>{opt}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+            + Add Guardian
+          </button>
+        )}
 
-      {/* Guardian's Details - Only if selected as emergency contact */}
-      {guardianIndex !== -1 && (
-        <div className="pt-6 border-t-2 border-gray-200 mt-6">
-          <p className="text-sm text-gray-600 mb-4 italic flex items-center gap-2">
-            📌 <span>Guardian information is required as you selected Guardian as emergency contact</span>
-          </p>
-          {renderParentSection(guardianIndex, "Legal Guardian", "👤", false)}
-        </div>
-      )}
+        {/* Guardian's Details - Only if added */}
+        {hasGuardian && guardianIndex !== -1 && (
+          <div>
+            {renderParentSection(guardianIndex, "Guardian", "👤")}
+            <button
+              type="button"
+              onClick={() => remove(guardianIndex)}
+              className="w-full mt-3 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+            >
+              <span className="text-xl">−</span> Remove Guardian
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

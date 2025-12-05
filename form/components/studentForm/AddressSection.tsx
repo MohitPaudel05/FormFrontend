@@ -3,14 +3,13 @@
 import React, { useEffect } from "react";
 import { useFormContext, Controller, useWatch } from "react-hook-form";
 import { StudentFull } from "../../types/student";
+import { provinceOptions } from "../../constants/enums";
 
 type Props = {};
 
-const provinces = ["Province 1", "Province 2", "Bagmati", "Gandaki", "Lumbini", "Karnali", "Sudurpashchim"];
-
 const districtsMap: Record<string, string[]> = {
-  "Province 1": ["Jhapa", "Morang", "Sunsari"],
-  "Province 2": ["Saptari", "Dhanusha"],
+  "Province1": ["Jhapa", "Morang", "Sunsari"],
+  "Province2": ["Saptari", "Dhanusha"],
   Bagmati: ["Kathmandu", "Lalitpur", "Bhaktapur"],
   Gandaki: ["Pokhara", "Kaski"],
   Lumbini: ["Butwal", "Rupandehi"],
@@ -46,30 +45,44 @@ const AddressSection: React.FC<Props> = () => {
     formState: { errors },
   } = useFormContext<StudentFull>();
 
+  // Initialize addressType on first render
+  useEffect(() => {
+    const currentAddresses = watch("addresses");
+    if (currentAddresses) {
+      // Set default addressType if not set
+      if (!currentAddresses[0]?.addressType) {
+        setValue("addresses.0.addressType", "Permanent");
+      }
+      if (!currentAddresses[1]?.addressType) {
+        setValue("addresses.1.addressType", "Temporary");
+      }
+    }
+  }, []);
+
   const sameAsPermanent = useWatch({
     control,
-    name: "address.1.sameAsPermanent",
+    name: "addresses.1.addressType",
   });
 
-  const permanentProvince = watch("address.0.province");
-  const permanentDistrict = watch("address.0.district");
-  const permanentMunicipality = watch("address.0.municipality");
-  const permanentWardNumber = watch("address.0.wardNumber");
-  const permanentTole = watch("address.0.tole");
-  const permanentHouseNumber = watch("address.0.houseNumber");
+  const permanentProvince = watch("addresses.0.province");
+  const permanentDistrict = watch("addresses.0.district");
+  const permanentMunicipality = watch("addresses.0.municipality");
+  const permanentWardNumber = watch("addresses.0.wardNumber");
+  const permanentTole = watch("addresses.0.tole");
+  const permanentHouseNumber = watch("addresses.0.houseNumber");
   
-  const temporaryProvince = watch("address.1.province");
-  const temporaryDistrict = watch("address.1.district");
+  const temporaryProvince = watch("addresses.1.province");
+  const temporaryDistrict = watch("addresses.1.district");
 
-  // Copy Permanent to Temporary if checked - with all individual fields tracked
+  // Copy Permanent to Temporary if "SameAsPermanent" is selected
   useEffect(() => {
-    if (sameAsPermanent) {
-      setValue("address.1.province", permanentProvince);
-      setValue("address.1.district", permanentDistrict);
-      setValue("address.1.municipality", permanentMunicipality);
-      setValue("address.1.wardNumber", permanentWardNumber);
-      setValue("address.1.tole", permanentTole);
-      setValue("address.1.houseNumber", permanentHouseNumber);
+    if (sameAsPermanent === "SameAsPermanent") {
+      setValue("addresses.1.province", permanentProvince);
+      setValue("addresses.1.district", permanentDistrict);
+      setValue("addresses.1.municipality", permanentMunicipality);
+      setValue("addresses.1.wardNumber", permanentWardNumber);
+      setValue("addresses.1.tole", permanentTole);
+      setValue("addresses.1.houseNumber", permanentHouseNumber);
     }
   }, [sameAsPermanent, permanentProvince, permanentDistrict, permanentMunicipality, permanentWardNumber, permanentTole, permanentHouseNumber, setValue]);
 
@@ -77,20 +90,30 @@ const AddressSection: React.FC<Props> = () => {
     const addr = index === 0 ? "Permanent" : "Temporary";
     const currentProvince = index === 0 ? permanentProvince : temporaryProvince;
     const currentDistrict = index === 0 ? permanentDistrict : temporaryDistrict;
-    const isDisabled = index === 1 && sameAsPermanent;
+    const isDisabled = index === 1 && sameAsPermanent === "SameAsPermanent";
 
     return (
       <div key={index} className="p-6 border-2 border-gray-200 rounded-xl bg-white hover:border-blue-300 transition-all duration-200">
         <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center gap-2">
-          📍 {addr} Address {index === 1 && <span className="text-sm font-normal text-gray-500">(Optional)</span>}
+          📍 {addr} Address
         </h3>
+
+        {/* Hidden field to store addressType */}
+        <input type="hidden" {...register(`addresses.${index}.addressType`)} />
 
         {index === 1 && (
           <div className="flex items-center space-x-3 mb-5 p-3 bg-blue-50 rounded-lg border border-blue-200">
             <input 
               type="checkbox" 
-              id="sameAsAddr" 
-              {...register(`address.${index}.sameAsPermanent`)} 
+              id="sameAsAddr"
+              checked={sameAsPermanent === "SameAsPermanent"}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setValue("addresses.1.addressType", "SameAsPermanent");
+                } else {
+                  setValue("addresses.1.addressType", "Temporary");
+                }
+              }}
               className="w-4 h-4 cursor-pointer"
             />
             <label htmlFor="sameAsAddr" className="font-medium text-gray-700 cursor-pointer">Same as Permanent Address</label>
@@ -101,35 +124,35 @@ const AddressSection: React.FC<Props> = () => {
           <div>
             <label className="block font-semibold text-gray-700 mb-2">Province <span className="text-red-500">*</span></label>
             <select 
-              {...register(`address.${index}.province`)} 
+              {...register(`addresses.${index}.province`)} 
               disabled={isDisabled}
               className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
                 isDisabled ? "bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed" : "bg-white"
               } ${
-                errors.address?.[index]?.province
+                errors.addresses?.[index]?.province
                   ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                   : !isDisabled && "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
               }`}
             >
               <option value="">Select Province</option>
-              {provinces.map((p) => (
-                <option key={p} value={p}>{p}</option>
+              {provinceOptions.map((p) => (
+                <option key={p.value} value={p.value}>{p.label}</option>
               ))}
             </select>
-            {errors.address?.[index]?.province && (
-              <p className="text-red-600 text-sm mt-2 font-medium">{errors.address[index]?.province?.message}</p>
+            {errors.addresses?.[index]?.province && (
+              <p className="text-red-600 text-sm mt-2 font-medium">{errors.addresses[index]?.province?.message}</p>
             )}
           </div>
 
           <div>
             <label className="block font-semibold text-gray-700 mb-2">District <span className="text-red-500">*</span></label>
             <select 
-              {...register(`address.${index}.district`)} 
+              {...register(`addresses.${index}.district`)} 
               disabled={isDisabled}
               className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
                 isDisabled ? "bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed" : "bg-white"
               } ${
-                errors.address?.[index]?.district
+                errors.addresses?.[index]?.district
                   ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                   : !isDisabled && "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
               }`}
@@ -139,20 +162,20 @@ const AddressSection: React.FC<Props> = () => {
                 <option key={d} value={d}>{d}</option>
               ))}
             </select>
-            {errors.address?.[index]?.district && (
-              <p className="text-red-600 text-sm mt-2 font-medium">{errors.address[index]?.district?.message}</p>
+            {errors.addresses?.[index]?.district && (
+              <p className="text-red-600 text-sm mt-2 font-medium">{errors.addresses[index]?.district?.message}</p>
             )}
           </div>
 
           <div>
             <label className="block font-semibold text-gray-700 mb-2">Municipality/VDC <span className="text-red-500">*</span></label>
             <select 
-              {...register(`address.${index}.municipality`)} 
+              {...register(`addresses.${index}.municipality`)} 
               disabled={isDisabled}
               className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
                 isDisabled ? "bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed" : "bg-white"
               } ${
-                errors.address?.[index]?.municipality
+                errors.addresses?.[index]?.municipality
                   ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                   : !isDisabled && "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
               }`}
@@ -162,8 +185,8 @@ const AddressSection: React.FC<Props> = () => {
                 <option key={m} value={m}>{m}</option>
               ))}
             </select>
-            {errors.address?.[index]?.municipality && (
-              <p className="text-red-600 text-sm mt-2 font-medium">{errors.address[index]?.municipality?.message}</p>
+            {errors.addresses?.[index]?.municipality && (
+              <p className="text-red-600 text-sm mt-2 font-medium">{errors.addresses[index]?.municipality?.message}</p>
             )}
           </div>
         </div>
@@ -173,19 +196,19 @@ const AddressSection: React.FC<Props> = () => {
             <label className="block font-semibold text-gray-700 mb-2">Ward Number <span className="text-red-500">*</span></label>
             <input 
               type="text" 
-              {...register(`address.${index}.wardNumber`)} 
+              {...register(`addresses.${index}.wardNumber`)} 
               disabled={isDisabled}
               className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
                 isDisabled ? "bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed" : "bg-white"
               } ${
-                errors.address?.[index]?.wardNumber
+                errors.addresses?.[index]?.wardNumber
                   ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                   : !isDisabled && "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
               }`}
               placeholder="Ward no."
             />
-            {errors.address?.[index]?.wardNumber && (
-              <p className="text-red-600 text-sm mt-2 font-medium">{errors.address[index]?.wardNumber?.message}</p>
+            {errors.addresses?.[index]?.wardNumber && (
+              <p className="text-red-600 text-sm mt-2 font-medium">{errors.addresses[index]?.wardNumber?.message}</p>
             )}
           </div>
 
@@ -193,19 +216,19 @@ const AddressSection: React.FC<Props> = () => {
             <label className="block font-semibold text-gray-700 mb-2">Tole/Street <span className="text-red-500">*</span></label>
             <input 
               type="text" 
-              {...register(`address.${index}.tole`)} 
+              {...register(`addresses.${index}.tole`)} 
               disabled={isDisabled}
               className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
                 isDisabled ? "bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed" : "bg-white"
               } ${
-                errors.address?.[index]?.tole
+                errors.addresses?.[index]?.tole
                   ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
                   : !isDisabled && "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
               }`}
               placeholder="Street/tole name"
             />
-            {errors.address?.[index]?.tole && (
-              <p className="text-red-600 text-sm mt-2 font-medium">{errors.address[index]?.tole?.message}</p>
+            {errors.addresses?.[index]?.tole && (
+              <p className="text-red-600 text-sm mt-2 font-medium">{errors.addresses[index]?.tole?.message}</p>
             )}
           </div>
 
@@ -213,7 +236,7 @@ const AddressSection: React.FC<Props> = () => {
             <label className="block font-semibold text-gray-700 mb-2">House Number</label>
             <input 
               type="text" 
-              {...register(`address.${index}.houseNumber`)} 
+              {...register(`addresses.${index}.houseNumber`)} 
               disabled={isDisabled}
               className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
                 isDisabled ? "bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed" : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"

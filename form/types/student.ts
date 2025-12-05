@@ -1,161 +1,193 @@
 import { z } from "zod";
 
-// Personal Details
-export const personalDetailSchema = z.object({
+// ===== STUDENT DTO =====
+export const studentSchema = z.object({
+  image: z.instanceof(File).optional(),
+  imagePath: z.string().optional(),
   firstName: z.string().min(1, "First Name is required"),
   middleName: z.string().optional(),
   lastName: z.string().min(1, "Last Name is required"),
   dateOfBirth: z.string().min(1, "Date of Birth is required"),
   placeOfBirth: z.string().optional(),
-  nationality: z.string().min(1, "Nationality is required"),
-  gender: z.enum(["Male", "Female", "Other"]),
-  bloodGroup: z.enum(["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"]).optional(),
-  maritalStatus: z.enum(["Single", "Married", "Divorced"]).optional(),
-  religion: z.string().optional(),
-  ethnicity: z.string().optional(),
-});
-
-// Citizenship
-export const citizenshipSchema = z.object({
-  citizenshipNumber: z.string().min(1, "Citizenship Number is required"),
-  issueDate: z.string().min(1, "Issue Date is required"),
-  issueDistrict: z.string().min(1, "Issue District is required"),
-});
-
-// Contact Info
-export const contactInfoSchema = z.object({
   email: z.string().email("Invalid Email"),
-  alternateEmail: z.string().email("Invalid Email").optional(),
-  primaryMobile: z.string().min(1, "Primary Mobile is required"),
-  secondaryMobile: z.string().optional(),
+  mobileNumber: z.string().min(1, "Mobile Number is required"),
+  gender: z.string().min(1, "Gender is required"),
 });
 
-// Emergency Contact
-export const emergencyContactSchema = z.object({
+// ===== SECONDARY INFO DTO =====
+export const secondaryInfoSchema = z.object({
+  alternateEmail: z.string().email("Invalid Email").optional().or(z.literal("")),
+  alternateMobileNumber: z.string().optional().or(z.literal("")),
+  bloodGroup: z.string().optional().or(z.literal("")),
+  maritalStatus: z.string().optional().or(z.literal("")),
+  religion: z.string().optional().or(z.literal("")),
+});
+
+// ===== ETHNICITY DTO =====
+export const ethnicitySchema = z.object({
+  ethnicityName: z.string().min(1, "Ethnicity is required"),
+  ethnicityGroup: z.string().min(1, "Ethnicity Group is required"),
+});
+
+// ===== EMERGENCY DTO =====
+export const emergencySchema = z.object({
   emergencyContactName: z.string().min(1, "Emergency Contact Name is required"),
-  emergencyContactRelation: z.enum(["Father", "Mother", "Guardian"]),
+  emergencyContactRelation: z.string().min(1, "Relation is required"),
   emergencyContactNumber: z.string().min(1, "Emergency Contact Number is required"),
-  emergencyContactEmail: z.string().email("Invalid Email").optional(),
 });
 
-// Disability
+// ===== DISABILITY DTO =====
 export const disabilitySchema = z.object({
-  disabilityType: z.enum(["None", "Physical", "Visual", "Hearing", "Intellectual", "Multiple"]),
-  description: z.string().optional(),
-  percentage: z.string().optional(),
+  disabilityStatus: z.string().default("None"),
+  disabilityType: z.string().optional().or(z.literal("")),
+  disabilityPercentage: z.number().optional(),
 });
 
-// Address
+// ===== CITIZENSHIP DTO =====
+export const citizenshipSchema = z.object({
+  citizenshipNumber: z.string().optional().or(z.literal("")),
+  citizenshipIssueDate: z.string().optional().or(z.literal("")),
+  citizenshipIssueDistrict: z.string().optional().or(z.literal("")),
+});
+
+// ===== ADDRESS DTO =====
 export const addressSchema = z.object({
-  addressType: z.enum(["Permanent", "Temporary"]),
+  addressType: z.enum(["Permanent", "Temporary", "SameAsPermanent"]),
   province: z.string().min(1, "Province is required"),
   district: z.string().min(1, "District is required"),
   municipality: z.string().min(1, "Municipality is required"),
   wardNumber: z.string().min(1, "Ward Number is required"),
-  tole: z.string().min(1, "Tole/Street is required"),
-  houseNumber: z.string().optional(),
-  sameAsPermanent: z.boolean().optional(),
-});
+  tole: z.string().min(1, "Tole is required"),
+  houseNumber: z.string().optional().or(z.literal("")),
+}).refine(
+  (data) => {
+    // If addressType is SameAsPermanent, no other validation needed
+    if (data.addressType === "SameAsPermanent") {
+      return true;
+    }
+    // For Permanent and Temporary, all fields required
+    return (
+      data.province &&
+      data.district &&
+      data.municipality &&
+      data.wardNumber &&
+      data.tole
+    );
+  },
+  {
+    message: "Address details are required",
+    path: ["district"],
+  }
+);
 
-// Parent / Guardian
-export const parentSchema = z.object({
-  relation: z.enum(["Father", "Mother", "Guardian"]),
-  fullName: z.string().min(1, "Full Name is required"),
+// Array of addresses sent to backend
+export const addressesSchema = z.array(addressSchema);
+
+// ===== PARENT DETAIL DTO =====
+export const parentsSchema = z.array(z.object({
+  parentType: z.enum(["Father", "Mother", "Guardian"]),
+  fullName: z.string().min(1, "Full name is required"),
+  mobileNumber: z.string().min(1, "Mobile number is required"),
   occupation: z.string().optional(),
   designation: z.string().optional(),
   organization: z.string().optional(),
-  mobileNumber: z.string().min(1, "Mobile Number is required"),
-  email: z.string().email("Invalid Email").optional(),
-  annualFamilyIncome: z.enum(["<5 Lakh", "5-10 Lakh", "10-20 Lakh", ">20 Lakh"]).optional(),
-});
+  email: z.string().email().optional().or(z.literal("")),
+  annualFamilyIncome: z.string().optional(),
+}));
 
-// Enrollment
-export const enrollmentSchema = z.object({
+// ===== PROGRAM ENROLLMENT DTO =====
+export const programEnrollmentSchema = z.object({
   faculty: z.string().min(1, "Faculty is required"),
   program: z.string().min(1, "Program is required"),
   courseLevel: z.string().min(1, "Course Level is required"),
   academicYear: z.string().min(1, "Academic Year is required"),
-  semesterOrClass: z.string().optional(),
-  section: z.string().optional(),
-  rollNumber: z.string().optional(),
-  registrationNumber: z.string().optional(),
-  enrollDate: z.string().optional(),
-  academicStatus: z.enum(["Active", "On Hold", "Completed", "Dropped Out"]).optional(),
+  semesterOrClass: z.string().optional().or(z.literal("")),
+  section: z.string().optional().or(z.literal("")),
+  rollNumber: z.string().optional().or(z.literal("")),
+  registrationNumber: z.string().optional().or(z.literal("")),
+  enrollDate: z.string().optional().or(z.literal("")),
+  academicStatus: z.string().optional().or(z.literal("")),
 });
 
-// Qualification
-export const qualificationSchema = z.object({
-  qualificationName: z.string().min(1, "Qualification is required"),
-  boardOrUniversity: z.string().optional(),
-  institutionName: z.string().optional(),
-  passedYear: z.string().optional(),
-  divisionOrGPA: z.string().optional(),
-  marksheetDocument: z.instanceof(File).optional(),
+// ===== ACADEMIC HISTORY DTO =====
+export const academicHistorySchema = z.object({
+  qualification: z.enum(["SLC", "Plus", "Bachelors", "Masters"]),
+  board: z.string().min(1, "Board is required"),
+  institution: z.string().min(1, "Institution is required"),
+  passedYear: z.string().min(4, "Passed year is required"),
+  divisionGPA: z.enum(["First", "Second", "Third", "GPA", "Other"]),
+  marksheet: z.instanceof(File).optional(),
+  provisional: z.instanceof(File).optional(),
 });
 
-// Document Upload
-export const documentSchema = z.object({
-  type: z.string().min(1, "Document Type is required"),
-  file: z.instanceof(File).optional(),
-});
-
-// Fee & Scholarship
-export const feeSchema = z.object({
-  feeCategory: z.enum(["Regular", "Self-Financed", "Scholarship", "Quota"]),
-});
-
-export const scholarshipSchema = z.object({
-  scholarshipType: z.string().min(1, "Scholarship Type is required"),
-  providerName: z.string().min(1, "Scholarship Provider Name is required"),
-  amount: z.string().min(1, "Scholarship Amount is required"),
+// ===== BANK DETAIL DTO =====
+export const bankDetailsSchema = z.object({
   accountHolderName: z.string().min(1, "Account Holder Name is required"),
   bankName: z.string().min(1, "Bank Name is required"),
   accountNumber: z.string().min(1, "Account Number is required"),
-  branch: z.string().optional(),
+  branch: z.string().optional().or(z.literal("")),
 });
 
-// Interests & Awards
-export const interestSchema = z.object({
-  interest: z.string().min(1, "Interest is required"),
-  otherDetail: z.string().optional(),
-});
+// ===== SCHOLARSHIP DTO =====
+export const scholarshipsSchema = z.object({
+  feeCategory: z.enum(["Regular", "SelfFinanced", "Scholarship", "Quota"]),
+  scholarshipType: z.string().optional().or(z.literal("")),
+  scholarshipProvider: z.string().optional().or(z.literal("")),
+  scholarshipAmount: z.string().optional().or(z.literal("")),
+}).refine(
+  (data) => {
+    if (data.feeCategory !== "Scholarship" || data.scholarshipType === "None" || !data.scholarshipType) {
+      return true;
+    }
+    return (
+      data.scholarshipProvider &&
+      data.scholarshipAmount
+    );
+  },
+  {
+    message: "Scholarship details are required when Scholarship fee category is selected",
+    path: ["scholarshipProvider"],
+  }
+);
 
-export const awardSchema = z.object({
+// ===== ACHIEVEMENT DTO =====
+export const achievementSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  issuingOrganization: z.string().optional(),
-  yearReceived: z.string().optional(),
+  issuingOrganization: z.string().optional().or(z.literal("")),
+  yearReceived: z.string().optional().or(z.literal("")),
 });
 
-// Hostel & Transport
-export const hostelTransportSchema = z.object({
-  residencyType: z.enum(["Hosteller", "Day Scholar"]),
-  transportMethod: z.string().optional(),
+// ===== STUDENT EXTRA INFO DTO =====
+export const studentExtraInfoSchema = z.object({
+  extracurricularInterests: z.array(z.string()).optional(),
+  otherInterest: z.string().optional().or(z.literal("")),
+  hostellerStatus: z.string().optional().or(z.literal("")),
+  transportation: z.string().optional().or(z.literal("")),
 });
 
-// Declaration
+// ===== DECLARATION DTO =====
 export const declarationSchema = z.object({
-  isDeclared: z.boolean(),
-  dateOfApplication: z.string(),
-  place: z.string().optional(),
+  isDeclared: z.boolean().default(false),
+  dateOfApplication: z.string().min(1, "Date of Application is required"),
+  place: z.string().optional().or(z.literal("")),
 });
 
-// Full Form
+// ===== STUDENT FULL DTO =====
 export const studentFullSchema = z.object({
-  personalDetail: personalDetailSchema,
-  citizenshipInfo: citizenshipSchema,
-  contactInfo: contactInfoSchema,
-  emergencyContacts: z.array(emergencyContactSchema).min(1, "At least one emergency contact is required"),
+  student: studentSchema,
+  secondaryInfo: secondaryInfoSchema,
+  ethnicity: ethnicitySchema,
+  emergency: emergencySchema,
   disability: disabilitySchema,
-  address: z.array(addressSchema).min(1, "At least one address is required"),
-  parents: z.array(parentSchema).min(1, "At least one parent/guardian is required"),
-  enrollment: enrollmentSchema,
-  qualifications: z.array(qualificationSchema).optional(),
-  documents: z.array(documentSchema).optional(),
-  feeDetail: feeSchema,
-  scholarship: scholarshipSchema.optional(),
-  interests: z.array(interestSchema).optional(),
-  awards: z.array(awardSchema).optional(),
-  hostelTransport: hostelTransportSchema,
+  citizenship: citizenshipSchema,
+  addresses: addressesSchema,
+  parents: parentsSchema,
+  programEnrollments: programEnrollmentSchema,
+  academicHistories: z.array(academicHistorySchema).optional(),
+  scholarships: scholarshipsSchema,
+  bankDetails: bankDetailsSchema,
+  achievements: z.array(achievementSchema).optional(),
+  studentExtraInfos: studentExtraInfoSchema.optional(),
   declaration: declarationSchema,
 });
 

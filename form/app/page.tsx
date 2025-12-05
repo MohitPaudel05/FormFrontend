@@ -28,35 +28,138 @@ const StudentApplicationForm = () => {
 
   const methods = useForm<StudentFull>({
     resolver: zodResolver(studentFullSchema),
+    mode: "onSubmit",
     defaultValues: {
-      personalDetail: { firstName: "", lastName: "", nationality: "Nepali", gender: "Male" },
-      citizenshipInfo: { citizenshipNumber: "", issueDate: "", issueDistrict: "" },
-      contactInfo: { email: "", primaryMobile: "" },
-      emergencyContacts: [{ emergencyContactName: "", emergencyContactRelation: "Father", emergencyContactNumber: "" }],
-      disability: { disabilityType: "None", description: "" },
-      address: [{ addressType: "Permanent", province: "", district: "", municipality: "", wardNumber: "", tole: "" }],
-      parents: [{ relation: "Father", fullName: "", mobileNumber: "" }],
-      enrollment: { faculty: "", program: "", courseLevel: "", academicYear: "" },
+      personalDetail: { 
+        firstName: "", 
+        lastName: "", 
+        dateOfBirth: "",
+        nationality: "Nepali", 
+        gender: "Male",
+        maritalStatus: "Single",
+        bloodGroup: "APositive"
+      },
+      citizenshipInfo: { 
+        citizenshipNumber: "", 
+        issueDate: "", 
+        issueDistrict: "" 
+      },
+      contactInfo: { 
+        email: "", 
+        primaryMobile: "" 
+      },
+      emergencyContacts: [{ 
+        emergencyContactName: "", 
+        emergencyContactRelation: "Father", 
+        emergencyContactNumber: "" 
+      }],
+      disability: { 
+        disabilityType: "None", 
+        description: "" 
+      },
+      address: [
+        { 
+          addressType: "Permanent", 
+          province: "Province1", 
+          district: "", 
+          municipality: "", 
+          wardNumber: "", 
+          tole: "",
+          houseNumber: ""
+        },
+        { 
+          addressType: "Temporary", 
+          province: "Province1", 
+          district: "", 
+          municipality: "", 
+          wardNumber: "", 
+          tole: "",
+          houseNumber: ""
+        }
+      ],
+      parents: [
+        { 
+          relation: "Father", 
+          fullName: "", 
+          mobileNumber: "",
+          occupation: "",
+          designation: "",
+          organization: "",
+          email: ""
+        },
+        { 
+          relation: "Mother", 
+          fullName: "", 
+          mobileNumber: "",
+          occupation: "",
+          designation: "",
+          organization: "",
+          email: ""
+        }
+      ],
+      enrollment: { 
+        faculty: "Science", 
+        program: "BSc", 
+        courseLevel: "FirstYear", 
+        academicYear: "FirstYear" 
+      },
       qualifications: [],
       documents: [],
-      feeDetail: { feeCategory: "Regular" },
-      scholarship: { scholarshipType: "", providerName: "", amount: "" },
+      feeDetail: { 
+        feeCategory: "Regular" 
+      },
+      scholarship: { 
+        scholarshipType: "None", 
+        providerName: "", 
+        amount: "",
+        accountHolderName: "",
+        bankName: "",
+        accountNumber: "",
+        branch: ""
+      },
       interests: [],
       awards: [],
-      hostelTransport: { residencyType: "Day Scholar", transportMethod: "" },
-      declaration: { isDeclared: false, dateOfApplication: new Date().toISOString().split("T")[0], place: "" },
+      hostelTransport: { 
+        residencyType: "DayScholar", 
+        transportMethod: "Walk" 
+      },
+      declaration: { 
+        isDeclared: false, 
+        dateOfApplication: new Date().toISOString().split("T")[0], 
+        place: "" 
+      },
     },
   });
 
   const onSubmit = async (data: StudentFull) => {
     setSubmitMessage(null);
     try {
+      console.log("Submitting form data:", data);
       await postStudentForm(data);
+      alert("🎉 Form submitted successfully!");
       setSubmitMessage({ type: "success", text: "Form submitted successfully!" });
-    } catch (error) {
-      console.error(error);
-      setSubmitMessage({ type: "error", text: "Failed to submit form." });
+      methods.reset();
+    } catch (error: any) {
+      console.error("Submission error:", error);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to submit form. Check browser console for details.";
+      alert(`⚠️ Error: ${errorMessage}`);
+      setSubmitMessage({ 
+        type: "error", 
+        text: errorMessage
+      });
     }
+  };
+
+  const handleFormSubmit = async () => {
+    const errors = methods.formState.errors;
+    if (Object.keys(errors).length > 0) {
+      const errorList = Object.entries(errors)
+        .map(([key, value]: any) => `${key}: ${value?.message || "Invalid field"}`)
+        .join("\n");
+      alert(`❌ Validation Errors:\n\n${errorList}`);
+      return;
+    }
+    methods.handleSubmit(onSubmit)();
   };
 
   return (
@@ -72,7 +175,7 @@ const StudentApplicationForm = () => {
         </div>
 
         <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={(e) => { e.preventDefault(); handleFormSubmit(); }} className="space-y-6">
             {/* Personal Details */}
             <div className="group">
               <div className="bg-white p-8 rounded-2xl shadow-md hover:shadow-lg border border-gray-100 transition-all duration-300">
@@ -170,6 +273,10 @@ const StudentApplicationForm = () => {
                 <Button
                   type="submit"
                   disabled={methods.formState.isSubmitting}
+                  onClick={() => {
+                    console.log("Current form values:", methods.getValues());
+                    console.log("Current form errors:", methods.formState.errors);
+                  }}
                   className="relative overflow-hidden px-12 py-4 rounded-full font-bold text-lg text-white bg-gradient-to-r from-green-500 via-emerald-500 to-teal-600 hover:from-green-600 hover:via-emerald-600 hover:to-teal-700 shadow-lg hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-green-300 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {methods.formState.isSubmitting ? (

@@ -3,15 +3,13 @@
 import React, { useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { StudentFull } from "../../types/student";
-
-const faculties = ["Science", "Management", "Humanities"];
-const programsMap: Record<string, string[]> = {
-  Science: ["BSc CSIT", "BSc Microbiology"],
-  Management: ["BBA", "BBS"],
-  Humanities: ["BA", "B.Ed"],
-};
-const courseLevels = ["+2", "Bachelor", "Master"];
-const academicStatuses = ["Active", "On Hold", "Completed", "Dropped Out"];
+import { 
+  facultyOptions, 
+  degreeProgramOptions, 
+  academicYearOptions, 
+  semesterOptions, 
+  academicStatusOptions 
+} from "../../constants/enums";
 
 const EnrollmentSection: React.FC = () => {
   const { register, control, setValue, formState: { errors } } = useFormContext<StudentFull>();
@@ -20,7 +18,7 @@ const EnrollmentSection: React.FC = () => {
 
   useEffect(() => {
     // Reset program if faculty changes
-    setValue("enrollment.program", "");
+    setValue("enrollment.program", "BSc");
   }, [selectedFaculty, setValue]);
 
   return (
@@ -42,7 +40,7 @@ const EnrollmentSection: React.FC = () => {
             }`}
           >
             <option value="">Select Faculty</option>
-            {faculties.map((f) => (
+            {facultyOptions.map((f) => (
               <option key={f} value={f}>{f}</option>
             ))}
           </select>
@@ -62,7 +60,7 @@ const EnrollmentSection: React.FC = () => {
             }`}
           >
             <option value="">Select Program</option>
-            {programsMap[selectedFaculty || ""]?.map((p) => (
+            {degreeProgramOptions.map((p) => (
               <option key={p} value={p}>{p}</option>
             ))}
           </select>
@@ -82,8 +80,8 @@ const EnrollmentSection: React.FC = () => {
             }`}
           >
             <option value="">Select Course Level</option>
-            {courseLevels.map((cl) => (
-              <option key={cl} value={cl}>{cl}</option>
+            {academicYearOptions.map((cl) => (
+              <option key={cl.value} value={cl.value}>{cl.label}</option>
             ))}
           </select>
           {errors.enrollment?.courseLevel && (
@@ -93,16 +91,19 @@ const EnrollmentSection: React.FC = () => {
 
         <div>
           <label className="block font-semibold text-gray-700 mb-2">Academic Year <span className="text-red-500">*</span></label>
-          <input 
-            type="text" 
+          <select 
             {...register("enrollment.academicYear")} 
-            className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
+            className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 ${
               errors.enrollment?.academicYear
                 ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
+                : "border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
             }`}
-            placeholder="e.g., 2024-2025"
-          />
+          >
+            <option value="">Select Academic Year</option>
+            {academicYearOptions.map((ay) => (
+              <option key={ay.value} value={ay.value}>{ay.label}</option>
+            ))}
+          </select>
           {errors.enrollment?.academicYear && (
             <p className="text-red-600 text-sm mt-2 font-medium">{errors.enrollment?.academicYear?.message}</p>
           )}
@@ -110,12 +111,15 @@ const EnrollmentSection: React.FC = () => {
 
         <div>
           <label className="block font-semibold text-gray-700 mb-2">Semester/Class</label>
-          <input 
-            type="text" 
+          <select 
             {...register("enrollment.semesterOrClass")} 
             className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
-            placeholder="e.g., Semester 1"
-          />
+          >
+            <option value="">Select Semester</option>
+            {semesterOptions.map((s) => (
+              <option key={s.value} value={s.value}>{s.label}</option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -164,8 +168,8 @@ const EnrollmentSection: React.FC = () => {
             className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
           >
             <option value="">Select Status</option>
-            {academicStatuses.map((status) => (
-              <option key={status} value={status}>{status}</option>
+            {academicStatusOptions.map((status) => (
+              <option key={status.value} value={status.value}>{status.label}</option>
             ))}
           </select>
         </div>
