@@ -21,10 +21,11 @@ const PersonalAndContact: React.FC<Props> = () => {
     register,
     control,
     watch,
+    setValue,
     formState: { errors },
   } = useFormContext<StudentFull>();
 
-  const disabilityType = watch("disability.disabilityType");
+  const disabilityStatus = watch("disability.disabilityStatus");
   const selectedEthnicityGroup = watch("ethnicity.ethnicityGroup");
 
   return (
@@ -41,9 +42,30 @@ const PersonalAndContact: React.FC<Props> = () => {
           <input
             type="file"
             accept=".png,.jpg,.jpeg"
-            {...register("student.image")}
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                // Validate file size (max 2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                  alert("File size must be less than 2MB");
+                  return;
+                }
+                // Validate file type
+                if (!["image/png", "image/jpeg"].includes(file.type)) {
+                  alert("Only JPG, JPEG, and PNG files are allowed");
+                  return;
+                }
+                setValue("student.image", file);
+              }
+            }}
+            className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 ${
+              errors.student?.image ? "border-red-400 bg-red-50" : "border-gray-300"
+            }`}
           />
+          {errors.student?.image && (
+            <p className="text-red-600 text-sm mt-2 font-medium">{errors.student.image.message}</p>
+          )}
+          <p className="text-sm text-gray-500 mt-1">JPG/JPEG/PNG, Max 2MB</p>
         </div>
       </div>
 
@@ -234,7 +256,7 @@ const PersonalAndContact: React.FC<Props> = () => {
           <div>
             <label className="block font-semibold text-gray-700 mb-2">Disability Type</label>
             <select
-              {...register("disability.disabilityType")}
+              {...register("disability.disabilityStatus")}
               className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
             >
               {disabilityOptions.map((disability) => (
@@ -243,7 +265,7 @@ const PersonalAndContact: React.FC<Props> = () => {
             </select>
           </div>
 
-          {disabilityType && disabilityType !== "None" && (
+          {disabilityStatus && disabilityStatus !== "None" && (
             <>
               <div>
                 <label className="block font-semibold text-gray-700 mb-2">Disability Percentage</label>

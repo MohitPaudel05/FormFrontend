@@ -23,22 +23,29 @@ const ParentGuardianSection: React.FC = () => {
   const hasGuardian = fields.some(f => f.parentType === "Guardian");
   const guardianIndex = fields.findIndex(f => f.parentType === "Guardian");
 
+  // Get indices by parent type for reliable rendering
+  const fatherIndex = fields.findIndex(f => f.parentType === "Father");
+  const motherIndex = fields.findIndex(f => f.parentType === "Mother");
+
   // Initialize on component mount
-  const [initialized, setInitialized] = React.useState(false);
-  
   React.useEffect(() => {
-    if (!initialized && fields.length === 0) {
+    // Check if Father and Mother already exist
+    const hasFather = fields.some(f => f.parentType === "Father");
+    const hasMother = fields.some(f => f.parentType === "Mother");
+    
+    if (!hasFather) {
       append({ parentType: "Father", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "", annualFamilyIncome: "" });
-      append({ parentType: "Mother", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "", annualFamilyIncome: "" });
-      setInitialized(true);
     }
-  }, [initialized, fields.length, append]);
+    if (!hasMother) {
+      append({ parentType: "Mother", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "", annualFamilyIncome: "" });
+    }
+  }, []);
 
   const renderParentSection = (index: number, relation: string, emoji: string) => {
     if (index === -1 || !fields[index]) return null;
 
     return (
-      <div key={fields[index]?.id} className="p-6 border-2 border-gray-200 rounded-xl bg-white hover:border-blue-300 transition-all duration-200">
+      <div key={fields[index]?.id} className="p-6 border-2 border-gray-200 rounded-xl bg-white hover:border-purple-300 transition-all duration-200">
         <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center gap-2">
           {emoji} {relation}'s Details
         </h3>
@@ -57,7 +64,7 @@ const ParentGuardianSection: React.FC = () => {
               className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
                 errors.parents?.[index]?.fullName
                   ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                  : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
+                  : "border-gray-300 bg-white focus:ring-2 focus:ring-purple-200 focus:border-purple-500 hover:border-gray-400"
               }`}
             />
             {errors.parents?.[index]?.fullName && (
@@ -74,7 +81,7 @@ const ParentGuardianSection: React.FC = () => {
               className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
                 errors.parents?.[index]?.mobileNumber
                   ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                  : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
+                  : "border-gray-300 bg-white focus:ring-2 focus:ring-purple-200 focus:border-purple-500 hover:border-gray-400"
               }`}
               placeholder="98XXXXXXXXX"
             />
@@ -92,7 +99,7 @@ const ParentGuardianSection: React.FC = () => {
               className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-all duration-200 ${
                 errors.parents?.[index]?.email
                   ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200 focus:border-red-500"
-                  : "border-gray-300 bg-white focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400"
+                  : "border-gray-300 bg-white focus:ring-2 focus:ring-purple-200 focus:border-purple-500 hover:border-gray-400"
               }`}
               placeholder="email@example.com"
             />
@@ -109,7 +116,7 @@ const ParentGuardianSection: React.FC = () => {
             <input 
               type="text" 
               {...register(`parents.${index}.occupation`)} 
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-500 hover:border-gray-400 transition-all duration-200"
               placeholder="e.g., Teacher, Engineer"
             />
           </div>
@@ -120,7 +127,7 @@ const ParentGuardianSection: React.FC = () => {
             <input 
               type="text" 
               {...register(`parents.${index}.designation`)} 
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-500 hover:border-gray-400 transition-all duration-200"
               placeholder="e.g., Senior Manager"
             />
           </div>
@@ -131,18 +138,18 @@ const ParentGuardianSection: React.FC = () => {
             <input 
               type="text" 
               {...register(`parents.${index}.organization`)} 
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-500 hover:border-gray-400 transition-all duration-200"
               placeholder="Company/Institution name"
             />
           </div>
         </div>
 
         {/* Annual Family Income */}
-        <div className="mt-5 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="mt-5 p-4 bg-purple-50 rounded-lg border border-purple-200">
           <label className="block font-semibold text-gray-700 mb-2">Annual Family Income</label>
           <select 
             {...register(`parents.${index}.annualFamilyIncome`)} 
-            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200"
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-500 hover:border-gray-400 transition-all duration-200"
           >
             <option value="">Select Income Range</option>
             {annualIncomeOptions.map(opt => (
@@ -162,16 +169,18 @@ const ParentGuardianSection: React.FC = () => {
       </div>
 
       <div className="space-y-5">
-        {/* Render fields by index - Father is 0, Mother is 1 */}
-        {renderParentSection(0, "Father", "👨")}
-        {renderParentSection(1, "Mother", "👩")}
+        {/* Father Section */}
+        {fatherIndex !== -1 && renderParentSection(fatherIndex, "Father", "👨")}
+
+        {/* Mother Section */}
+        {motherIndex !== -1 && renderParentSection(motherIndex, "Mother", "👩")}
 
         {/* Add Guardian Button - Only show if Guardian doesn't exist */}
         {!hasGuardian && (
           <button
             type="button"
             onClick={() => append({ parentType: "Guardian", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "", annualFamilyIncome: "" })}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
           >
             + Add Guardian
           </button>

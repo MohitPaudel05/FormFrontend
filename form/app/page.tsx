@@ -24,6 +24,7 @@ import Button from "@/components/ui/Button";
 
 const StudentApplicationForm = () => {
   const [submitMessage, setSubmitMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [showAlert, setShowAlert] = useState(false);
 
   const methods = useForm({
     resolver: zodResolver(studentFullSchema) as any,
@@ -111,20 +112,23 @@ const StudentApplicationForm = () => {
 
   const onSubmit = async (data: any) => {
     setSubmitMessage(null);
+    setShowAlert(true);
     try {
       console.log("Submitting form data:", data);
       await postStudentForm(data);
-      alert("🎉 Form submitted successfully!");
-      setSubmitMessage({ type: "success", text: "Form submitted successfully!" });
+      setSubmitMessage({ type: "success", text: "✅ Form submitted successfully!" });
       methods.reset();
+      // Auto-hide success message after 5 seconds
+      setTimeout(() => setShowAlert(false), 5000);
     } catch (error: any) {
       console.error("Submission error:", error);
       const errorMessage = error.response?.data?.message || error.message || "Failed to submit form. Check browser console for details.";
-      alert(`⚠️ Error: ${errorMessage}`);
       setSubmitMessage({ 
         type: "error", 
-        text: errorMessage
+        text: `❌ Error: ${errorMessage}`
       });
+      // Keep error message visible longer
+      setTimeout(() => setShowAlert(false), 8000);
     }
   };
 
@@ -134,7 +138,12 @@ const StudentApplicationForm = () => {
       const errorList = Object.entries(errors)
         .map(([key, value]: any) => `${key}: ${value?.message || "Invalid field"}`)
         .join("\n");
-      alert(`❌ Validation Errors:\n\n${errorList}`);
+      setSubmitMessage({ 
+        type: "error", 
+        text: `❌ Validation Errors:\n\n${errorList}`
+      });
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 8000);
       return;
     }
     methods.handleSubmit(onSubmit as any)();
@@ -142,6 +151,21 @@ const StudentApplicationForm = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+      {/* Alert Banner at Top */}
+      {showAlert && submitMessage && (
+        <div className="fixed top-4 left-4 right-4 z-50 max-w-2xl mx-auto">
+          <div
+            className={`p-5 rounded-lg text-white font-semibold shadow-2xl border-l-4 animate-pulse ${
+              submitMessage.type === "success"
+                ? "bg-gradient-to-r from-green-500 to-emerald-600 border-green-300"
+                : "bg-gradient-to-r from-red-500 to-red-600 border-red-300"
+            }`}
+          >
+            {submitMessage.text}
+          </div>
+        </div>
+      )}
+
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <div className="mb-12 text-center">
@@ -275,7 +299,6 @@ const StudentApplicationForm = () => {
                       : "bg-red-50 text-red-700 border-red-500"
                   }`}
                 >
-                  {submitMessage.type === "success" ? "🎉 " : "⚠️ "}
                   {submitMessage.text}
                 </div>
               )}

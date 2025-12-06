@@ -236,7 +236,7 @@ const QualificationSection: React.FC = () => {
                       render={({ field }) => (
                         <input
                           type="file"
-                          accept=".pdf"
+                          accept=".jpg,.jpeg,.png"
                           onChange={(e) => field.onChange(e.target.files?.[0])}
                           className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 ${
                             errors.academicHistories?.[index]?.characterCertificate ? "border-red-500" : "border-gray-300 focus:ring-2 focus:ring-yellow-200 focus:border-yellow-500 hover:border-gray-400"
@@ -249,7 +249,7 @@ const QualificationSection: React.FC = () => {
                         {errors.academicHistories[index]?.characterCertificate?.message}
                       </p>
                     )}
-                    <p className="text-sm text-gray-500 mt-1">PDF, Max 2MB</p>
+                    <p className="text-sm text-gray-500 mt-1">JPG/JPEG/PNG, Max 2MB</p>
                   </div>
                 </div>
 

@@ -6,7 +6,7 @@ import { StudentFull } from "../../types/student";
 import { interestOptions } from "../../constants/enums";
 
 const InterestsAwardsSection: React.FC = () => {
-  const { control, register, watch, formState: { errors } } = useFormContext<StudentFull>();
+  const { control, register, setValue: formSetValue, watch, formState: { errors } } = useFormContext<StudentFull>();
   const [showOtherInterest, setShowOtherInterest] = useState(false);
   const extracurricularInterests = watch("studentExtraInfos.extracurricularInterests") || [];
 
@@ -46,15 +46,13 @@ const InterestsAwardsSection: React.FC = () => {
                 checked={extracurricularInterests.includes(interest)}
                 onChange={(e) => {
                   const currentInterests = extracurricularInterests || [];
+                  let updatedInterests;
                   if (e.target.checked) {
-                    register("studentExtraInfos.extracurricularInterests").onChange({
-                      target: { value: [...currentInterests, interest] }
-                    });
+                    updatedInterests = [...currentInterests, interest];
                   } else {
-                    register("studentExtraInfos.extracurricularInterests").onChange({
-                      target: { value: currentInterests.filter(i => i !== interest) }
-                    });
+                    updatedInterests = currentInterests.filter(i => i !== interest);
                   }
+                  formSetValue("studentExtraInfos.extracurricularInterests", updatedInterests);
                   if (interest === "Other") setShowOtherInterest(e.target.checked);
                 }}
                 className="w-4 h-4 accent-fuchsia-600 rounded cursor-pointer"

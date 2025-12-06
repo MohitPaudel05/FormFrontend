@@ -154,8 +154,8 @@ export const academicHistorySchema = z.object({
     (file) => file.size <= 2 * 1024 * 1024,
     "Character Certificate must be less than 2MB"
   ).refine(
-    (file) => file.type === "application/pdf",
-    "Character Certificate must be PDF"
+    (file) => ["image/jpeg", "image/jpg", "image/png"].includes(file.type),
+    "Character Certificate must be JPG or PNG"
   ),
 });
 
