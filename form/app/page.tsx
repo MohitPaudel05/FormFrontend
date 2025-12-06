@@ -36,7 +36,7 @@ const StudentApplicationForm = () => {
         dateOfBirth: "",
         email: "",
         mobileNumber: "",
-        gender: "Male"
+        gender: ""
       },
       secondaryInfo: {
         alternateEmail: "",
@@ -52,7 +52,7 @@ const StudentApplicationForm = () => {
       },
       emergency: { 
         emergencyContactName: "", 
-        emergencyContactRelation: "Father", 
+        emergencyContactRelation: "", 
         emergencyContactNumber: "" 
       },
       disability: { 
@@ -64,8 +64,8 @@ const StudentApplicationForm = () => {
       },
       addresses: [
         { 
-          addressType: "Permanent", 
-          province: "Province1", 
+          addressType: "", 
+          province: "", 
           district: "", 
           municipality: "", 
           wardNumber: "", 
@@ -75,7 +75,7 @@ const StudentApplicationForm = () => {
       ],
       parents: [
         { 
-          parentType: "Father", 
+          parentType: "", 
           fullName: "", 
           mobileNumber: "",
           occupation: "",
@@ -85,14 +85,14 @@ const StudentApplicationForm = () => {
         }
       ],
       programEnrollments: { 
-        faculty: "Science", 
-        degreeProgram: "BSc",
+        faculty: "", 
+        degreeProgram: "",
         registrationNumber: "",
         academicSessions: []
       },
       academicHistories: [],
       scholarships: { 
-        feeCategory: "Regular"
+        feeCategory: ""
       },
       bankDetails: {
         accountHolderName: "",
@@ -116,7 +116,7 @@ const StudentApplicationForm = () => {
     try {
       console.log("Submitting form data:", data);
       await postStudentForm(data);
-      setSubmitMessage({ type: "success", text: "✅ Form submitted successfully!" });
+      setSubmitMessage({ type: "success", text: "Γ£à Form submitted successfully!" });
       methods.reset();
       // Auto-hide success message after 5 seconds
       setTimeout(() => setShowAlert(false), 5000);
@@ -125,7 +125,7 @@ const StudentApplicationForm = () => {
       const errorMessage = error.response?.data?.message || error.message || "Failed to submit form. Check browser console for details.";
       setSubmitMessage({ 
         type: "error", 
-        text: `❌ Error: ${errorMessage}`
+        text: `Γ¥î Error: ${errorMessage}`
       });
       // Keep error message visible longer
       setTimeout(() => setShowAlert(false), 8000);
@@ -140,7 +140,7 @@ const StudentApplicationForm = () => {
         .join("\n");
       setSubmitMessage({ 
         type: "error", 
-        text: `❌ Validation Errors:\n\n${errorList}`
+        text: `Γ¥î Validation Errors:\n\n${errorList}`
       });
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 8000);
@@ -284,7 +284,7 @@ const StudentApplicationForm = () => {
                     </span>
                   ) : (
                     <span className="flex items-center justify-center gap-2">
-                      <span>✓</span>
+                      
                       <span>Submit Application</span>
                     </span>
                   )}

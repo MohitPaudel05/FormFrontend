@@ -11,12 +11,25 @@ const semesterOptions = ["FirstSemester", "SecondSemester", "ThirdSemester", "Fo
 const academicStatusOptions = ["Active", "OnHold", "Completed", "DroppedOut"];
 
 const EnrollmentSection: React.FC = () => {
-  const { register, control, formState: { errors } } = useFormContext<StudentFull>();
+  const { register, control, formState: { errors }, getValues } = useFormContext<StudentFull>();
   
   const { fields, append, remove } = useFieldArray({
     control,
     name: "programEnrollments.academicSessions",
   });
+
+  // Initialize with one academic session if empty
+  React.useEffect(() => {
+    if (fields.length === 0) {
+      append({
+        academicYear: "FirstYear",
+        semester: "FirstSemester",
+        section: "",
+        rollNumber: "",
+        status: "Active",
+      });
+    }
+  }, []);
 
   const handleAddSession = () => {
     append({
@@ -212,13 +225,15 @@ const EnrollmentSection: React.FC = () => {
           </div>
         ))}
 
-        <button
-          type="button"
-          onClick={handleAddSession}
-          className="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-lg"
-        >
-          <span className="text-lg">+</span> Add Academic Session
-        </button>
+        {fields.length < 4 && (
+          <button
+            type="button"
+            onClick={handleAddSession}
+            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-lg"
+          >
+            <span className="text-lg">+</span> Add Another Academic Session
+          </button>
+        )}
       </div>
     </div>
   );
