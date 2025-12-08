@@ -1,14 +1,14 @@
 "use client";
 
 import React from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, Controller } from "react-hook-form";
 import { StudentFull } from "../../types/student";
 
 const DeclarationSection: React.FC = () => {
-  const { register, watch, formState: { errors } } = useFormContext<StudentFull>();
+  const { register, control, watch, formState: { errors } } = useFormContext<StudentFull>();
   
   const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
-  const isDeclared = watch("declaration.isDeclared");
+  const isAgreed = watch("declaration.isAgreed");
 
   return (
     <div className="space-y-6">
@@ -20,11 +20,18 @@ const DeclarationSection: React.FC = () => {
       <div className="border-2 border-gray-300 p-6 rounded-xl space-y-5">
         {/* Declaration Checkbox */}
         <div className="flex items-start space-x-4">
-          <input
-            type="checkbox"
-            id="declaration"
-            {...register("declaration.isDeclared")}
-            className="w-5 h-5 mt-1 rounded border-2 border-gray-300 cursor-pointer transition-all duration-200 accent-violet-600"
+          <Controller
+            name="declaration.isAgreed"
+            control={control}
+            render={({ field }) => (
+              <input
+                type="checkbox"
+                id="declaration"
+                checked={field.value || false}
+                onChange={(e) => field.onChange(e.target.checked)}
+                className="w-5 h-5 mt-1 rounded border-2 border-gray-300 cursor-pointer transition-all duration-200 accent-violet-600"
+              />
+            )}
           />
           <label htmlFor="declaration" className="text-gray-700 font-medium leading-relaxed cursor-pointer">
             I hereby declare that all the information provided above is true and correct to the best of my knowledge, and I accept the terms and conditions.

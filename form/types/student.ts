@@ -206,13 +206,14 @@ export const studentExtraInfoSchema = z.object({
 
 // ===== DECLARATION DTO =====
 export const declarationSchema = z.object({
-  isDeclared: z.boolean().default(false),
+  isAgreed: z.boolean().default(false),
   dateOfApplication: z.string().min(1, "Date of Application is required"),
   place: z.string().optional().or(z.literal("")),
 });
 
 // ===== STUDENT FULL DTO =====
 export const studentFullSchema = z.object({
+  id: z.number().optional(),
   student: studentSchema,
   secondaryInfo: secondaryInfoSchema,
   ethnicity: ethnicitySchema,
@@ -230,4 +231,19 @@ export const studentFullSchema = z.object({
   declaration: declarationSchema,
 });
 
+// Flat structure returned by backend GET endpoints
+export const studentFlatSchema = z.object({
+  id: z.number(),
+  imagePath: z.string().optional(),
+  firstName: z.string(),
+  middleName: z.string().optional(),
+  lastName: z.string(),
+  dateOfBirth: z.string(),
+  placeOfBirth: z.string().optional(),
+  email: z.string(),
+  mobileNumber: z.string(),
+  gender: z.string(),
+});
+
 export type StudentFull = z.infer<typeof studentFullSchema>;
+export type StudentFlat = z.infer<typeof studentFlatSchema>;

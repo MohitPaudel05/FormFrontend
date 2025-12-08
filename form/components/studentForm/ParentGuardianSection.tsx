@@ -39,7 +39,7 @@ const ParentGuardianSection: React.FC = () => {
     if (!hasMother) {
       append({ parentType: "Mother", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "", annualFamilyIncome: "" });
     }
-  }, []);
+  }, [append]);
 
   const renderParentSection = (index: number, relation: string, emoji: string) => {
     if (index === -1 || !fields[index]) return null;
@@ -169,11 +169,23 @@ const ParentGuardianSection: React.FC = () => {
       </div>
 
       <div className="space-y-5">
-        {/* Father Section */}
-        {fatherIndex !== -1 && renderParentSection(fatherIndex, "Father", "👨")}
+        {/* Father Section - Always render if index exists */}
+        {fields.map((field, idx) => 
+          field.parentType === "Father" && (
+            <div key={field.id}>
+              {renderParentSection(idx, "Father", "👨")}
+            </div>
+          )
+        )}
 
-        {/* Mother Section */}
-        {motherIndex !== -1 && renderParentSection(motherIndex, "Mother", "👩")}
+        {/* Mother Section - Always render if index exists */}
+        {fields.map((field, idx) => 
+          field.parentType === "Mother" && (
+            <div key={field.id}>
+              {renderParentSection(idx, "Mother", "👩")}
+            </div>
+          )
+        )}
 
         {/* Add Guardian Button - Only show if Guardian doesn't exist */}
         {!hasGuardian && (
@@ -187,17 +199,19 @@ const ParentGuardianSection: React.FC = () => {
         )}
 
         {/* Guardian's Details - Only if added */}
-        {hasGuardian && guardianIndex !== -1 && (
-          <div>
-            {renderParentSection(guardianIndex, "Guardian", "👤")}
-            <button
-              type="button"
-              onClick={() => remove(guardianIndex)}
-              className="w-full mt-3 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
-            >
-              <span className="text-xl">−</span> Remove Guardian
-            </button>
-          </div>
+        {fields.map((field, idx) => 
+          hasGuardian && field.parentType === "Guardian" && (
+            <div key={field.id}>
+              {renderParentSection(idx, "Guardian", "👤")}
+              <button
+                type="button"
+                onClick={() => remove(idx)}
+                className="w-full mt-3 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+              >
+                <span className="text-xl">−</span> Remove Guardian
+              </button>
+            </div>
+          )
         )}
       </div>
     </div>

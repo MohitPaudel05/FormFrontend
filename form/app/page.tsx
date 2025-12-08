@@ -75,13 +75,24 @@ const StudentApplicationForm = () => {
       ],
       parents: [
         { 
-          parentType: "", 
+          parentType: "Father", 
           fullName: "", 
           mobileNumber: "",
           occupation: "",
           designation: "",
           organization: "",
-          email: ""
+          email: "",
+          annualFamilyIncome: ""
+        },
+        { 
+          parentType: "Mother", 
+          fullName: "", 
+          mobileNumber: "",
+          occupation: "",
+          designation: "",
+          organization: "",
+          email: "",
+          annualFamilyIncome: ""
         }
       ],
       programEnrollments: { 
