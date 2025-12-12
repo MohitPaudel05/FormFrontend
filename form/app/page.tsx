@@ -130,15 +130,29 @@ const StudentApplicationForm = () => {
     setSubmitMessage(null);
     setShowAlert(true);
     try {
-      console.log("Submitting form data:", data);
+      console.log(" Submitting form data:", data);
       await postStudentForm(data);
-      setSubmitMessage({ type: "success", text: "Γ£à Form submitted successfully!" });
+      setSubmitMessage({ type: "success", text: " Form submitted successfully!" });
       methods.reset();
       // Auto-hide success message after 5 seconds
       setTimeout(() => setShowAlert(false), 5000);
     } catch (error: any) {
-      console.error("Submission error:", error);
-      const errorMessage = error.response?.data?.message || error.message || "Failed to submit form. Check browser console for details.";
+      console.error(" Submission error:");
+      console.error("  Status:", error.response?.status);
+      console.error("  Full response data:", error.response?.data);
+      if (error.response?.data?.errors) {
+        console.error("  Detailed validation errors:", JSON.stringify(error.response.data.errors, null, 2));
+      }
+      console.error("  Message:", error.message);
+      
+      let errorMessage = error.response?.data?.message || error.message || "Failed to submit form. Check browser console for details.";
+      if (error.response?.data?.errors) {
+        const errorsList = Object.entries(error.response.data.errors)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join("\n");
+        errorMessage = `Validation Errors:\n${errorsList}`;
+      }
+      
       setSubmitMessage({ 
         type: "error", 
         text: `Error: ${errorMessage}`

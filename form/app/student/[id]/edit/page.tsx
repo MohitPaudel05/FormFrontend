@@ -382,27 +382,31 @@ const StudentEditPage: React.FC = () => {
         studentExtraInfos: fullStudentData?.studentExtraInfos || {},
       };
 
-      // ✅ Submit data directly - file fields are already properly filtered using spread operators
+      //  Submit data directly - file fields are already properly filtered using spread operators
       // Only File objects are included for: citizenship photos, profile picture, academic history files
-      console.log("📤 Submitting student data:", {
-        citizenship: {
-          front: submitData.citizenship?.citizenshipFrontPhoto,
-          back: submitData.citizenship?.citizenshipBackPhoto
-        },
-        profilePicture: submitData.student?.image,
-        academicHistoriesCount: submitData.academicHistories?.length
-      });
+      console.log("📤 Submitting student data with full details:");
+      console.log("  Student:", submitData.student);
+      console.log("  Citizenship:", submitData.citizenship);
+      console.log("  Addresses:", submitData.addresses);
+      console.log("  Parents:", submitData.parents);
+      console.log("  Academic Histories:", submitData.academicHistories);
+      console.log("  Program Enrollments:", submitData.programEnrollments);
 
       const response = await updateStudent(parseInt(id), submitData);
 
-      setSubmitMessage({ type: "success", text: "✅ Student updated successfully!" });
+      // setSubmitMessage({ type: "success", text: " Student updated successfully!" });
       setShowAlert(true);
       
       // Show browser alert
-      alert("✅ Student data updated successfully!");
+      alert(" Student data updated successfully!");
     } catch (error: any) {
       let errorMessage = "Failed to update student.";
       let errorFields: { [key: string]: string } = {};
+
+      console.error("🔴 CATCH ERROR - Full error object:");
+      console.error("  error.response?.status:", error.response?.status);
+      console.error("  error.response?.data:", error.response?.data);
+      console.error("  error.response?.data type:", typeof error.response?.data);
 
       if (error.response?.data) {
         if (error.response.data.message) {

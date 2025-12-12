@@ -39,6 +39,13 @@ const convertToFormData = (data: any, formData = new FormData(), parentKey = "")
         console.log(`⏭️ Skipping ${parentKey ? parentKey + '.' : ''}${key} (value is ${value})`);
         return; // Skip this field
       }
+      
+      // ✅ Skip empty strings for Path fields - let backend use defaults
+      if (typeof value === 'string' && value === '' && key.endsWith('Path')) {
+        console.log(`⏭️ Skipping ${parentKey ? parentKey + '.' : ''}${key} (empty Path field)`);
+        return; // Skip empty Path fields
+      }
+      
       const fullKey = parentKey ? `${parentKey}.${key}` : key;
       convertToFormData(value, formData, fullKey);
     });
@@ -52,7 +59,42 @@ const convertToFormData = (data: any, formData = new FormData(), parentKey = "")
 // POST: Submit student form
 export const postStudentForm = async (data: StudentFull) => {
   try {
-    const formData = convertToFormData(data);
+    // Ensure academic histories have the required Path fields (as empty strings for new submissions)
+    const processedData = {
+      ...data,
+      academicHistories: (data.academicHistories || []).map((history: any) => ({
+        qualification: history.qualification || "",
+        board: history.board || "",
+        institution: history.institution || "",
+        passedYear: history.passedYear || "",
+        divisionGPA: history.divisionGPA || "",
+        // Include Path fields as empty strings for new submissions
+        photoPath: history.photoPath || "",
+        signaturePath: history.signaturePath || "",
+        characterCertificatePath: history.characterCertificatePath || "",
+        marksheetPath: history.marksheetPath || "",
+        provisionalPath: history.provisionalPath || "",
+        // Include File objects if they exist
+        ...(history.photo instanceof File && { photo: history.photo }),
+        ...(history.signature instanceof File && { signature: history.signature }),
+        ...(history.characterCertificate instanceof File && { characterCertificate: history.characterCertificate }),
+        ...(history.marksheet instanceof File && { marksheet: history.marksheet }),
+        ...(history.provisional instanceof File && { provisional: history.provisional }),
+      }))
+    };
+
+    const formData = convertToFormData(processedData);
+    
+    // Log all FormData entries to see what's being sent
+    console.log("📋 FormData entries being sent:");
+    for (const [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`  ${key}: File(${value.name}, ${value.size} bytes)`);
+      } else {
+        console.log(`  ${key}: ${value}`);
+      }
+    }
+    
     const response = await api.post("/student", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -60,7 +102,13 @@ export const postStudentForm = async (data: StudentFull) => {
     });
     return response.data;
   } catch (error: any) {
-    console.error("POST student form error:", error.response || error.message);
+    console.error("🔴 POST student form error:");
+    console.error("  Status:", error.response?.status);
+    console.error("  Full error data:", error.response?.data);
+    if (error.response?.data?.errors) {
+      console.error("  Detailed validation errors:", JSON.stringify(error.response.data.errors, null, 2));
+    }
+    console.error("  Message:", error.message);
     throw error;
   }
 };
@@ -108,7 +156,13 @@ export const updateStudent = async (id: number, data: StudentFull) => {
     });
     return response.data as StudentFlat;
   } catch (error: any) {
-    console.error("PUT student error:", error.response || error.message);
+    console.error("🔴 PUT student error:");
+    console.error("  Status:", error.response?.status);
+    console.error("  Full error data:", error.response?.data);
+    if (error.response?.data?.errors) {
+      console.error("  Detailed validation errors:", JSON.stringify(error.response.data.errors, null, 2));
+    }
+    console.error("  Message:", error.message);
     throw error;
   }
 };

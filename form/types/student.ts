@@ -69,30 +69,30 @@ export const citizenshipSchema = z.object({
 // ===== ADDRESS DTO =====
 export const addressSchema = z.object({
   addressType: z.enum(["Permanent", "Temporary", "SameAsPermanent"]),
-  province: z.string().min(1, "Province is required"),
-  district: z.string().min(1, "District is required"),
-  municipality: z.string().min(1, "Municipality is required"),
-  wardNumber: z.string().min(1, "Ward Number is required"),
-  tole: z.string().min(1, "Tole is required"),
+  province: z.string().optional().or(z.literal("")),
+  district: z.string().optional().or(z.literal("")),
+  municipality: z.string().optional().or(z.literal("")),
+  wardNumber: z.string().optional().or(z.literal("")),
+  tole: z.string().optional().or(z.literal("")),
   houseNumber: z.string().optional().or(z.literal("")),
 }).refine(
   (data) => {
-    // If addressType is SameAsPermanent, no other validation needed
+    // If addressType is SameAsPermanent, no validation needed
     if (data.addressType === "SameAsPermanent") {
       return true;
     }
-    // For Permanent and Temporary, all fields required
+    // For Permanent and Temporary, all fields are required
     return (
-      data.province &&
-      data.district &&
-      data.municipality &&
-      data.wardNumber &&
-      data.tole
+      data.province && data.province.trim() !== "" &&
+      data.district && data.district.trim() !== "" &&
+      data.municipality && data.municipality.trim() !== "" &&
+      data.wardNumber && data.wardNumber.trim() !== "" &&
+      data.tole && data.tole.trim() !== ""
     );
   },
   {
     message: "Address details are required",
-    path: ["district"],
+    path: ["province"],
   }
 );
 

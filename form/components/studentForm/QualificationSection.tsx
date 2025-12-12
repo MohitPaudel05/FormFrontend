@@ -189,6 +189,13 @@ const QualificationSection: React.FC<Props> = ({ fullStudentData }) => {
                 </div>
               </div>
 
+              {/* Hidden input fields for Path fields - must be registered to send with form */}
+              <input type="hidden" {...register(`academicHistories.${index}.photoPath`)} />
+              <input type="hidden" {...register(`academicHistories.${index}.signaturePath`)} />
+              <input type="hidden" {...register(`academicHistories.${index}.characterCertificatePath`)} />
+              <input type="hidden" {...register(`academicHistories.${index}.marksheetPath`)} />
+              <input type="hidden" {...register(`academicHistories.${index}.provisionalPath`)} />
+
               {/* Document Uploads Section */}
               <div className="pt-4 border-t-2 border-yellow-100">
                 <h4 className="font-semibold text-gray-800 mb-4">📸 Document & Photo Uploads</h4>

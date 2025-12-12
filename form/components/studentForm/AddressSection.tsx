@@ -197,6 +197,49 @@ const AddressSection: React.FC<Props> = ({ fullStudentData }) => {
       currentDistrict = permanentDistrict;
     }
 
+    // Don't render the temporary address fields if SameAsPermanent is selected
+    if (index === 1 && isDisabled) {
+      return (
+        <div key={index} className="p-6 border-2 border-gray-200 rounded-xl bg-white hover:border-blue-300 transition-all duration-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center gap-2">
+            📍 {addr} Address
+          </h3>
+          
+          {/* Hidden field to store addressType */}
+          <input type="hidden" {...register(`addresses.${index}.addressType`)} />
+          
+          <div className="flex items-center space-x-3 mb-5 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <input 
+              type="checkbox" 
+              id="sameAsAddr"
+              checked={sameAsPermanent === "SameAsPermanent"}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setValue("addresses.1.addressType", "SameAsPermanent");
+                } else {
+                  setValue("addresses.1.addressType", "Temporary");
+                }
+              }}
+              className="w-4 h-4 cursor-pointer"
+            />
+            <label htmlFor="sameAsAddr" className="font-medium text-gray-700 cursor-pointer">Same as Permanent Address</label>
+          </div>
+          
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-gray-700">✓ Using permanent address details</p>
+          </div>
+
+          {/* Hidden inputs for temporary address fields to maintain form structure */}
+          <input type="hidden" {...register(`addresses.${index}.province`)} />
+          <input type="hidden" {...register(`addresses.${index}.district`)} />
+          <input type="hidden" {...register(`addresses.${index}.municipality`)} />
+          <input type="hidden" {...register(`addresses.${index}.wardNumber`)} />
+          <input type="hidden" {...register(`addresses.${index}.tole`)} />
+          <input type="hidden" {...register(`addresses.${index}.houseNumber`)} />
+        </div>
+      );
+    }
+
     return (
       <div key={index} className="p-6 border-2 border-gray-200 rounded-xl bg-white hover:border-blue-300 transition-all duration-200">
         <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center gap-2">
