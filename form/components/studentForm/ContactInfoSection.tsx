@@ -4,11 +4,17 @@ import React from "react";
 import { useFormContext } from "react-hook-form";
 import { StudentFull } from "../../types/student";
 
-const ContactInfoSection: React.FC = () => {
+type Props = {
+  fullStudentData?: any;
+};
+
+const ContactInfoSection: React.FC<Props> = ({ fullStudentData }) => {
   const {
     register,
     formState: { errors },
   } = useFormContext<StudentFull>();
+
+  // Note: Form is reset with all data at the page level, no need to sync here
 
   return (
     <div className="space-y-6">

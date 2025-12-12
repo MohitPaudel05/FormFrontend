@@ -5,9 +5,15 @@ import { useFormContext } from "react-hook-form";
 import { StudentFull } from "../../types/student";
 import { residencyTypeOptions, transportationMethodOptions } from "../../constants/enums";
 
-const HostelTransportSection: React.FC = () => {
+type Props = {
+  fullStudentData?: any;
+};
+
+const HostelTransportSection: React.FC<Props> = ({ fullStudentData }) => {
   const { register, watch, formState: { errors } } = useFormContext<StudentFull>();
   const hostellerStatus = watch("studentExtraInfos.hostellerStatus");
+
+  // Note: Form is reset with all data at the page level, no need to sync here
 
   return (
     <div className="space-y-6">
@@ -57,3 +63,4 @@ const HostelTransportSection: React.FC = () => {
 };
 
 export default HostelTransportSection;
+

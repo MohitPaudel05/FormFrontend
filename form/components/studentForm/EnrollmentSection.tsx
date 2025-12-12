@@ -10,17 +10,62 @@ const academicYearOptions = ["FirstYear", "SecondYear", "ThirdYear", "FourthYear
 const semesterOptions = ["FirstSemester", "SecondSemester", "ThirdSemester", "FourthSemester", "FifthSemester", "SixthSemester"];
 const academicStatusOptions = ["Active", "OnHold", "Completed", "DroppedOut"];
 
-const EnrollmentSection: React.FC = () => {
-  const { register, control, formState: { errors }, getValues } = useFormContext<StudentFull>();
+type Props = {
+  fullStudentData?: any;
+};
+
+const EnrollmentSection: React.FC<Props> = ({ fullStudentData }) => {
+  const { register, control, setValue, formState: { errors }, getValues } = useFormContext<StudentFull>();
   
   const { fields, append, remove } = useFieldArray({
     control,
     name: "programEnrollments.academicSessions",
   });
 
-  // Initialize with one academic session if empty
+  // ✅ Track if we've synced from backend to avoid reinitializing
+  const syncInitialized = React.useRef(false);
+
+  // Sync academic sessions field array when fullStudentData changes
   React.useEffect(() => {
-    if (fields.length === 0) {
+    if (fullStudentData?.programEnrollments?.academicSessions && fullStudentData.programEnrollments.academicSessions.length > 0 && !syncInitialized.current) {
+      syncInitialized.current = true; // Mark as synced
+      const sessions = fullStudentData.programEnrollments.academicSessions;
+      
+      // ✅ FIX: Only append if we need to add more fields
+      const sessionsToAdd = sessions.length - fields.length;
+      
+      if (sessionsToAdd > 0) {
+        // Only append the difference - don't duplicate
+        for (let i = 0; i < sessionsToAdd; i++) {
+          append({
+            academicYear: "FirstYear",
+            semester: "FirstSemester",
+            section: "",
+            rollNumber: "",
+            status: "Active",
+          });
+        }
+      }
+      
+      // Now update all fields with the actual data from backend
+      sessions.forEach((session: any, index: number) => {
+        setValue(`programEnrollments.academicSessions.${index}.academicYear`, 
+          session.academicYear || "FirstYear");
+        setValue(`programEnrollments.academicSessions.${index}.semester`, 
+          session.semester || "FirstSemester");
+        setValue(`programEnrollments.academicSessions.${index}.section`, 
+          session.section || "");
+        setValue(`programEnrollments.academicSessions.${index}.rollNumber`, 
+          session.rollNumber || "");
+        setValue(`programEnrollments.academicSessions.${index}.status`, 
+          session.status || "Active");
+      });
+    }
+  }, [fullStudentData?.programEnrollments?.academicSessions, append, setValue, fields.length]);
+
+  // Initialize with one academic session if empty (only on component mount, not after sync)
+  React.useEffect(() => {
+    if (fields.length === 0 && !syncInitialized.current) {
       append({
         academicYear: "FirstYear",
         semester: "FirstSemester",

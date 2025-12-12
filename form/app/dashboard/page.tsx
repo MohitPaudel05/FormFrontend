@@ -9,8 +9,6 @@ const DashboardPage: React.FC = () => {
   const [students, setStudents] = useState<StudentFlat[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterGender, setFilterGender] = useState<string>("All");
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -46,16 +44,7 @@ const DashboardPage: React.FC = () => {
   };
 
   // Filter students
-  const filteredStudents = students.filter((student) => {
-    const matchesSearch =
-      student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesGender = filterGender === "All" || student.gender === filterGender;
-
-    return matchesSearch && matchesGender;
-  });
+  const filteredStudents = students;
 
   if (loading) {
     return (
@@ -94,35 +83,6 @@ const DashboardPage: React.FC = () => {
             {error}
           </div>
         )}
-
-        {/* Search and Filter */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-gray-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block font-semibold text-gray-700 mb-2">Search Student</label>
-              <input
-                type="text"
-                placeholder="Search by name or email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block font-semibold text-gray-700 mb-2">Filter by Gender</label>
-              <select
-                value={filterGender}
-                onChange={(e) => setFilterGender(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-              >
-                <option value="All">All</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-          </div>
-        </div>
 
         {/* Students List */}
         {filteredStudents.length === 0 ? (
@@ -193,10 +153,10 @@ const DashboardPage: React.FC = () => {
                     <td className="px-6 py-4">
                       <div className="flex gap-2 justify-center">
                         <Link
-                          href={`/student/${student.id}`}
-                          className="px-3 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-sm font-medium transition-all duration-200"
+                          href={`/student/${student.id}/edit`}
+                          className="px-3 py-1 bg-yellow-100 text-yellow-700 hover:bg-yellow-200 rounded-lg text-sm font-medium transition-all duration-200"
                         >
-                          View
+                          Edit
                         </Link>
                         <button
                           onClick={() => handleDelete(student.id)}

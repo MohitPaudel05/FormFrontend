@@ -5,9 +5,14 @@ import { useFormContext, useFieldArray, Controller } from "react-hook-form";
 import { StudentFull } from "../../types/student";
 import { interestOptions } from "../../constants/enums";
 
-const InterestsAwardsSection: React.FC = () => {
-  const { control, register, setValue: formSetValue, watch, formState: { errors } } = useFormContext<StudentFull>();
+type Props = {
+  fullStudentData?: any;
+};
+
+const InterestsAwardsSection: React.FC<Props> = ({ fullStudentData }) => {
+  const { control, register, setValue: formSetValue, watch, getValues, formState: { errors } } = useFormContext<StudentFull>();
   const [showOtherInterest, setShowOtherInterest] = useState(false);
+  const [showAllAchievements, setShowAllAchievements] = useState(true);
   const extracurricularInterests = watch("studentExtraInfos.extracurricularInterests") || [];
 
   const { fields, append, remove } = useFieldArray({
@@ -15,12 +20,25 @@ const InterestsAwardsSection: React.FC = () => {
     name: "achievements",
   });
 
+  const hasInitialized = React.useRef(false);
+
   // Ensure at least one award exists
   React.useEffect(() => {
-    if (fields.length === 0) {
+    if (!hasInitialized.current && fields.length === 0 && !fullStudentData?.achievements) {
+      hasInitialized.current = true;
       append({ title: "", issuingOrganization: "", yearReceived: "" });
     }
-  }, [append]);
+  }, []);
+
+  // Sync extracurricular interests when fullStudentData changes
+  React.useEffect(() => {
+    if (fullStudentData?.studentExtraInfos?.extracurricularInterests) {
+      formSetValue("studentExtraInfos.extracurricularInterests", fullStudentData.studentExtraInfos.extracurricularInterests);
+    }
+  }, [fullStudentData, formSetValue]);
+
+  // Show all items if data exists, otherwise show only first item unless user clicks "Show More"
+  const visibleFields = fullStudentData?.achievements?.length > 0 ? fields : (showAllAchievements ? fields : fields.slice(0, 1));
 
   return (
     <div className="space-y-6">
@@ -35,7 +53,13 @@ const InterestsAwardsSection: React.FC = () => {
           🎯 Extracurricular Interests
         </h3>
         <div className="flex flex-wrap gap-3">
-          {interestOptions.map((interest) => (
+          {interestOptions.map((interest) => {
+            // Use both watched value and fullStudentData for fallback
+            const watchedInterests = extracurricularInterests || [];
+            const fallbackInterests = fullStudentData?.studentExtraInfos?.extracurricularInterests || [];
+            const interestsToCheck = watchedInterests.length > 0 ? watchedInterests : fallbackInterests;
+            const isChecked = interestsToCheck.includes(interest);
+            return (
             <label
               key={interest}
               className="flex items-center space-x-2 px-4 py-2 border-2 border-gray-300 rounded-lg bg-white hover:border-fuchsia-400 hover:bg-fuchsia-50 transition-all duration-200 cursor-pointer"
@@ -43,7 +67,7 @@ const InterestsAwardsSection: React.FC = () => {
               <input
                 type="checkbox"
                 value={interest}
-                checked={extracurricularInterests.includes(interest)}
+                checked={isChecked}
                 onChange={(e) => {
                   const currentInterests = extracurricularInterests || [];
                   let updatedInterests;
@@ -59,7 +83,8 @@ const InterestsAwardsSection: React.FC = () => {
               />
               <span className="font-medium text-gray-700">{interest}</span>
             </label>
-          ))}
+            );
+          })}
         </div>
         {showOtherInterest && (
           <div>
@@ -81,14 +106,14 @@ const InterestsAwardsSection: React.FC = () => {
         </div>
 
         <div className="space-y-3">
-          {fields.map((field, index) => (
+          {visibleFields.map((field, index) => (
             <div key={field.id} className="border-2 border-fuchsia-200 rounded-xl p-6 bg-white hover:border-fuchsia-300 transition-all duration-200">
               {/* Card Header */}
               <div className="flex justify-between items-center mb-6 pb-4 border-b-2 border-fuchsia-100">
                 <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <span>🏆</span> Achievement {index + 1}
+                  <span>🏆</span> Achievement {index + 1} {index === 0 && <span className="text-red-500 text-sm">*</span>}
                 </h3>
-                {fields.length > 1 && (
+                {index > 0 && (
                   <button
                     type="button"
                     onClick={() => {
@@ -147,12 +172,24 @@ const InterestsAwardsSection: React.FC = () => {
             </div>
           ))}
 
+          {/* Show More / Show Less Button */}
+          {fields.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setShowAllAchievements(!showAllAchievements)}
+              className="w-full py-2 text-fuchsia-600 hover:text-fuchsia-700 font-semibold text-sm transition-all duration-200"
+            >
+              {showAllAchievements ? '▲ Show Less' : '▼ Show More (' + (fields.length - 1) + ' more)'}
+            </button>
+          )}
+
+          {/* Add More Button */}
           <button
             type="button"
             onClick={() => append({ title: "", issuingOrganization: "", yearReceived: "" })}
             className="w-full py-3 bg-gradient-to-r from-fuchsia-600 to-fuchsia-500 hover:from-fuchsia-700 hover:to-fuchsia-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-lg"
           >
-            <span className="text-lg">+</span> Add Next Achievement
+            <span className="text-lg">+</span> Add More Achievement
           </button>
         </div>
       </div>
@@ -161,3 +198,4 @@ const InterestsAwardsSection: React.FC = () => {
 };
 
 export default InterestsAwardsSection;
+

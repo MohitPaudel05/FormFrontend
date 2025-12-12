@@ -5,7 +5,9 @@ import { useFormContext, Controller, useWatch } from "react-hook-form";
 import { StudentFull } from "../../types/student";
 import { provinceOptions } from "../../constants/enums";
 
-type Props = {};
+type Props = {
+  fullStudentData?: any;
+};
 
 const districtsMap: Record<string, string[]> = {
   "Province1": ["Jhapa", "Morang", "Sunsari"],
@@ -36,7 +38,42 @@ const municipalitiesMap: Record<string, string[]> = {
   Kailali: ["Dhangadhi Sub-Metropolitan"],
 };
 
-const AddressSection: React.FC<Props> = () => {
+// Map numeric enum values to string representations
+// Backend uses: 1=Permanent, 2=Temporary, 3=SameAsPermanent
+const addressTypeMap: Record<number | string, string> = {
+  1: "Permanent",
+  2: "Temporary",
+  3: "SameAsPermanent",
+  "Permanent": "Permanent",
+  "Temporary": "Temporary",
+  "SameAsPermanent": "SameAsPermanent",
+};
+
+// Helper function to safely convert addressType from any format to string
+const normalizeAddressType = (value: any): "Permanent" | "Temporary" | "SameAsPermanent" => {
+  if (!value) return "Permanent";
+  
+  // If it's already a string, validate it's a valid enum value
+  if (typeof value === "string") {
+    if (["Permanent", "Temporary", "SameAsPermanent"].includes(value)) {
+      return value as "Permanent" | "Temporary" | "SameAsPermanent";
+    }
+  }
+  
+  // If it's a number, convert using the map
+  if (typeof value === "number") {
+    const mapped = addressTypeMap[value];
+    if (mapped) {
+      console.log(`📌 Converted numeric addressType ${value} to "${mapped}"`);
+      return mapped as "Permanent" | "Temporary" | "SameAsPermanent";
+    }
+  }
+  
+  // Default fallback
+  return "Permanent";
+};
+
+const AddressSection: React.FC<Props> = ({ fullStudentData }) => {
   const {
     register,
     control,
@@ -44,6 +81,8 @@ const AddressSection: React.FC<Props> = () => {
     watch,
     formState: { errors },
   } = useFormContext<StudentFull>();
+
+  const syncInitialized = React.useRef(false);
 
   // Initialize addressType on first render
   useEffect(() => {
@@ -59,6 +98,65 @@ const AddressSection: React.FC<Props> = () => {
     }
   }, []);
 
+  // Sync address data when fullStudentData changes - only once
+  useEffect(() => {
+    if (fullStudentData?.addresses && fullStudentData.addresses.length > 0 && !syncInitialized.current) {
+      syncInitialized.current = true;
+      console.log("🔄 Syncing address data from fullStudentData:", fullStudentData.addresses);
+      
+      // Set permanent address (index 0)
+      if (fullStudentData.addresses[0]) {
+        const perm = fullStudentData.addresses[0];
+        const permAddressType = normalizeAddressType(perm.addressType);
+        console.log("📍 Setting permanent address:", perm, "normalized addressType:", permAddressType);
+        setValue("addresses.0.addressType", permAddressType);
+        setValue("addresses.0.province", perm.province || "");
+        // Force re-render after province is set to load districts
+        setTimeout(() => {
+          setValue("addresses.0.district", perm.district || "");
+          setValue("addresses.0.municipality", perm.municipality || "");
+        }, 50);
+        setValue("addresses.0.wardNumber", perm.wardNumber || "");
+        setValue("addresses.0.tole", perm.tole || "");
+        setValue("addresses.0.houseNumber", perm.houseNumber || "");
+      }
+      
+      // Set temporary address (index 1)
+      // If only one address is provided and it's "SameAsPermanent", copy permanent to temporary
+      if (fullStudentData.addresses.length === 1 && fullStudentData.addresses[0]) {
+        const perm = fullStudentData.addresses[0];
+        const permAddressType = normalizeAddressType(perm.addressType);
+        
+        if (permAddressType === "SameAsPermanent") {
+          console.log("📍 Only permanent address provided with SameAsPermanent flag, copying to temporary");
+          setValue("addresses.1.addressType", "SameAsPermanent");
+          setValue("addresses.1.province", perm.province || "");
+          setTimeout(() => {
+            setValue("addresses.1.district", perm.district || "");
+            setValue("addresses.1.municipality", perm.municipality || "");
+          }, 50);
+          setValue("addresses.1.wardNumber", perm.wardNumber || "");
+          setValue("addresses.1.tole", perm.tole || "");
+          setValue("addresses.1.houseNumber", perm.houseNumber || "");
+        }
+      } else if (fullStudentData.addresses[1]) {
+        // If second address exists, use it
+        const temp = fullStudentData.addresses[1];
+        const tempAddressType = normalizeAddressType(temp.addressType);
+        console.log("📍 Setting temporary address:", temp, "normalized addressType:", tempAddressType);
+        setValue("addresses.1.addressType", tempAddressType);
+        setValue("addresses.1.province", temp.province || "");
+        setTimeout(() => {
+          setValue("addresses.1.district", temp.district || "");
+          setValue("addresses.1.municipality", temp.municipality || "");
+        }, 50);
+        setValue("addresses.1.wardNumber", temp.wardNumber || "");
+        setValue("addresses.1.tole", temp.tole || "");
+        setValue("addresses.1.houseNumber", temp.houseNumber || "");
+      }
+    }
+  }, [fullStudentData, setValue]);
+
   const sameAsPermanent = useWatch({
     control,
     name: "addresses.1.addressType",
@@ -73,7 +171,8 @@ const AddressSection: React.FC<Props> = () => {
   
   const temporaryProvince = watch("addresses.1.province");
   const temporaryDistrict = watch("addresses.1.district");
-
+  const temporaryMunicipality = watch("addresses.1.municipality");
+  
   // Copy Permanent to Temporary if "SameAsPermanent" is selected
   useEffect(() => {
     if (sameAsPermanent === "SameAsPermanent") {
@@ -88,9 +187,15 @@ const AddressSection: React.FC<Props> = () => {
 
   const renderAddress = (index: number) => {
     const addr = index === 0 ? "Permanent" : "Temporary";
-    const currentProvince = index === 0 ? permanentProvince : temporaryProvince;
-    const currentDistrict = index === 0 ? permanentDistrict : temporaryDistrict;
+    let currentProvince = index === 0 ? permanentProvince : temporaryProvince;
+    let currentDistrict = index === 0 ? permanentDistrict : temporaryDistrict;
     const isDisabled = index === 1 && sameAsPermanent === "SameAsPermanent";
+    
+    // When disabled (SameAsPermanent), use permanent values for dropdown options
+    if (isDisabled) {
+      currentProvince = permanentProvince;
+      currentDistrict = permanentDistrict;
+    }
 
     return (
       <div key={index} className="p-6 border-2 border-gray-200 rounded-xl bg-white hover:border-blue-300 transition-all duration-200">
@@ -158,9 +263,17 @@ const AddressSection: React.FC<Props> = () => {
               }`}
             >
               <option value="">Select District</option>
-              {districtsMap[currentProvince || ""]?.map((d) => (
-                <option key={d} value={d}>{d}</option>
-              ))}
+              {currentProvince && districtsMap[currentProvince] ? (
+                // If province is selected, show only its districts
+                districtsMap[currentProvince].map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))
+              ) : (
+                // If no province selected, show all districts as fallback
+                Object.values(districtsMap).flat().map((d, idx) => (
+                  <option key={`${d}-${idx}`} value={d}>{d}</option>
+                ))
+              )}
             </select>
             {errors.addresses?.[index]?.district && (
               <p className="text-red-600 text-sm mt-2 font-medium">{errors.addresses[index]?.district?.message}</p>
@@ -181,9 +294,17 @@ const AddressSection: React.FC<Props> = () => {
               }`}
             >
               <option value="">Select Municipality</option>
-              {municipalitiesMap[currentDistrict || ""]?.map((m) => (
-                <option key={m} value={m}>{m}</option>
-              ))}
+              {currentDistrict && municipalitiesMap[currentDistrict] ? (
+                // If district is selected, show only its municipalities
+                municipalitiesMap[currentDistrict].map((m) => (
+                  <option key={m} value={m}>{m}</option>
+                ))
+              ) : (
+                // If no district selected, show all municipalities as fallback
+                Object.values(municipalitiesMap).flat().map((m, idx) => (
+                  <option key={`${m}-${idx}`} value={m}>{m}</option>
+                ))
+              )}
             </select>
             {errors.addresses?.[index]?.municipality && (
               <p className="text-red-600 text-sm mt-2 font-medium">{errors.addresses[index]?.municipality?.message}</p>

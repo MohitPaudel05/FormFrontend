@@ -4,12 +4,23 @@ import React from "react";
 import { useFormContext, Controller } from "react-hook-form";
 import { StudentFull } from "../../types/student";
 
-const CitizenshipSection: React.FC = () => {
+type Props = {
+  fullStudentData?: any;
+};
+
+const CitizenshipSection: React.FC<Props> = ({ fullStudentData }) => {
   const {
     register,
     control,
+    watch,
     formState: { errors },
   } = useFormContext<StudentFull>();
+
+  // Watch the file inputs to display preview
+  const frontPhotoFile = watch("citizenship.citizenshipFrontPhoto");
+  const backPhotoFile = watch("citizenship.citizenshipBackPhoto");
+  const frontPhotoPath = watch("citizenship.citizenshipFrontPhotoPath");
+  const backPhotoPath = watch("citizenship.citizenshipBackPhotoPath");
 
   return (
     <div className="space-y-6">
@@ -70,6 +81,23 @@ const CitizenshipSection: React.FC = () => {
           {/* Citizenship Front Photo */}
           <div>
             <label className="block font-semibold text-gray-700 mb-2">Front Photo</label>
+            
+            {/* Display existing photo if available */}
+            {frontPhotoPath && !frontPhotoFile && (
+              <div className="mb-3 p-3 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-700 font-semibold mb-2">✅ Current Photo:</p>
+                <img 
+                  src={`https://localhost:7190/${frontPhotoPath}`}
+                  alt="Front citizenship photo"
+                  className="w-full h-40 object-cover rounded-lg"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+            
+            {/* File input for new photo */}
             <Controller
               control={control}
               name="citizenship.citizenshipFrontPhoto"
@@ -87,12 +115,28 @@ const CitizenshipSection: React.FC = () => {
             {errors.citizenship?.citizenshipFrontPhoto && (
               <p className="text-red-500 text-sm mt-1">{errors.citizenship.citizenshipFrontPhoto.message}</p>
             )}
-            <p className="text-sm text-gray-500 mt-1">JPG/PNG, Max 2MB</p>
+            <p className="text-sm text-gray-500 mt-1">JPG/PNG, Max 2MB {frontPhotoPath && !frontPhotoFile && "(Optional - leave empty to keep current)"}</p>
           </div>
 
           {/* Citizenship Back Photo */}
           <div>
             <label className="block font-semibold text-gray-700 mb-2">Back Photo</label>
+            
+            {/* Display existing photo if available */}
+            {backPhotoPath && !backPhotoFile && (
+              <div className="mb-3 p-3 bg-green-50 border-2 border-green-200 rounded-lg">
+                <p className="text-sm text-green-700 font-semibold mb-2">✅ Current Photo:</p>
+                <img 
+                  src={`https://localhost:7190/${backPhotoPath}`}
+                  alt="Back citizenship photo"
+                  className="w-full h-40 object-cover rounded-lg"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+            
             <Controller
               control={control}
               name="citizenship.citizenshipBackPhoto"
@@ -110,7 +154,7 @@ const CitizenshipSection: React.FC = () => {
             {errors.citizenship?.citizenshipBackPhoto && (
               <p className="text-red-500 text-sm mt-1">{errors.citizenship.citizenshipBackPhoto.message}</p>
             )}
-            <p className="text-sm text-gray-500 mt-1">JPG/PNG, Max 2MB</p>
+            <p className="text-sm text-gray-500 mt-1">JPG/PNG, Max 2MB {backPhotoPath && !backPhotoFile && "(Optional - leave empty to keep current)"}</p>
           </div>
         </div>
       </div>

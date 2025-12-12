@@ -14,19 +14,24 @@ import {
   disabilityOptions 
 } from "../../constants/enums";
 
-type Props = {};
+type Props = {
+  fullStudentData?: any;
+};
 
-const PersonalAndContact: React.FC<Props> = () => {
+const PersonalAndContact: React.FC<Props> = ({ fullStudentData }) => {
   const {
     register,
     control,
     watch,
     setValue,
+    getValues,
     formState: { errors },
   } = useFormContext<StudentFull>();
 
   const disabilityStatus = watch("disability.disabilityStatus");
   const selectedEthnicityGroup = watch("ethnicity.ethnicityGroup");
+  const imageFile = watch("student.image");
+  const imagePath = watch("student.imagePath");
 
   return (
     <div className="space-y-6">
@@ -39,33 +44,55 @@ const PersonalAndContact: React.FC<Props> = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="block font-semibold text-gray-700 mb-2">Profile Picture</label>
-          <input
-            type="file"
-            accept=".png,.jpg,.jpeg"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                // Validate file size (max 2MB)
-                if (file.size > 2 * 1024 * 1024) {
-                  alert("File size must be less than 2MB");
-                  return;
-                }
-                // Validate file type
-                if (!["image/png", "image/jpeg"].includes(file.type)) {
-                  alert("Only JPG, JPEG, and PNG files are allowed");
-                  return;
-                }
-                setValue("student.image", file);
-              }
-            }}
-            className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 ${
-              errors.student?.image ? "border-red-400 bg-red-50" : "border-gray-300"
-            }`}
+          
+          {/* Display existing photo if available */}
+          {imagePath && !imageFile && (
+            <div className="mb-3 p-3 bg-blue-50 border-2 border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-700 font-semibold mb-2">✅ Current Photo:</p>
+              <img 
+                src={`https://localhost:7190/${imagePath}`}
+                alt="Profile picture"
+                className="w-full h-40 object-cover rounded-lg"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            </div>
+          )}
+          
+          <Controller
+            control={control}
+            name="student.image"
+            render={({ field }) => (
+              <input
+                type="file"
+                accept=".png,.jpg,.jpeg"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    // Validate file size (max 2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                      alert("File size must be less than 2MB");
+                      return;
+                    }
+                    // Validate file type
+                    if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
+                      alert("Only JPG, JPEG, and PNG files are allowed");
+                      return;
+                    }
+                    field.onChange(file);
+                  }
+                }}
+                className={`w-full px-4 py-3 border-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 ${
+                  errors.student?.image ? "border-red-400 bg-red-50" : "border-gray-300"
+                }`}
+              />
+            )}
           />
           {errors.student?.image && (
             <p className="text-red-600 text-sm mt-2 font-medium">{errors.student.image.message}</p>
           )}
-          <p className="text-sm text-gray-500 mt-1">JPG/JPEG/PNG, Max 2MB</p>
+          <p className="text-sm text-gray-500 mt-1">JPG/JPEG/PNG, Max 2MB {imagePath && !imageFile && "(Optional - leave empty to keep current)"}</p>
         </div>
       </div>
 

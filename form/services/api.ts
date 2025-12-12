@@ -1,7 +1,7 @@
 import axios from "axios";
 import { StudentFull, StudentFlat } from "../types/student";
 
-// Base Axios instance
+
 const api = axios.create({
   baseURL: "https://localhost:7190/api",
 });
@@ -9,6 +9,14 @@ const api = axios.create({
 // Helper function to convert data to FormData
 const convertToFormData = (data: any, formData = new FormData(), parentKey = ""): FormData => {
   if (data === null || data === undefined) {
+    // Special case: for citizenship photos, include them even if null/undefined
+    // This prevents ASP.NET model binding from creating empty arrays
+    if (parentKey.endsWith('.citizenshipFrontPhoto') || parentKey.endsWith('.citizenshipBackPhoto')) {
+      formData.append(parentKey, ''); // Add empty string so field is present
+      console.log(`📝 Including ${parentKey} as empty (prevents validation error)`);
+      return formData;
+    }
+    // ✅ Skip null/undefined values for other fields
     return formData;
   }
 
@@ -16,12 +24,21 @@ const convertToFormData = (data: any, formData = new FormData(), parentKey = "")
     formData.append(parentKey, data);
   } else if (Array.isArray(data)) {
     data.forEach((item, index) => {
+      // ✅ Skip null/undefined array items
+      if (item === null || item === undefined) {
+        return;
+      }
       const key = `${parentKey}[${index}]`;
       convertToFormData(item, formData, key);
     });
   } else if (typeof data === "object") {
     Object.keys(data).forEach((key) => {
       const value = data[key];
+      // ✅ Skip null/undefined values - don't add them to FormData
+      if (value === null || value === undefined) {
+        console.log(`⏭️ Skipping ${parentKey ? parentKey + '.' : ''}${key} (value is ${value})`);
+        return; // Skip this field
+      }
       const fullKey = parentKey ? `${parentKey}.${key}` : key;
       convertToFormData(value, formData, fullKey);
     });
@@ -52,7 +69,8 @@ export const postStudentForm = async (data: StudentFull) => {
 export const getStudentById = async (id: number) => {
   try {
     const response = await api.get(`/student/${id}`);
-    return response.data as StudentFlat;
+    // Return as any to handle nested objects (StudentFullDto from backend)
+    return response.data as any;
   } catch (error: any) {
     console.error("GET student by ID error:", error.response || error.message)
     throw error;
@@ -66,6 +84,31 @@ export const getAllStudents = async () => {
     return response.data as StudentFlat[];
   } catch (error: any) {
     console.error("GET all students error:", error.response || error.message);
+    throw error;
+  }
+};
+
+// PUT: Update student by ID
+export const updateStudent = async (id: number, data: StudentFull) => {
+  try {
+    const formData = convertToFormData(data);
+    
+    // Log what keys are in FormData for citizenship
+    console.log("📋 FormData keys for citizenship:");
+    for (const [key, value] of formData.entries()) {
+      if (key.startsWith('citizenship')) {
+        console.log(`  ${key}: ${value instanceof File ? `File(${(value as File).name})` : value}`);
+      }
+    }
+    
+    const response = await api.put(`/student/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data as StudentFlat;
+  } catch (error: any) {
+    console.error("PUT student error:", error.response || error.message);
     throw error;
   }
 };

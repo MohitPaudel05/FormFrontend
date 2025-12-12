@@ -5,11 +5,17 @@ import { useFormContext } from "react-hook-form";
 import { StudentFull } from "../../types/student";
 import { feeCategoryOptions, scholarshipTypeOptions } from "../../constants/enums";
 
-const FinancialDetails: React.FC = () => {
+type Props = {
+  fullStudentData?: any;
+};
+
+const FinancialDetails: React.FC<Props> = ({ fullStudentData }) => {
   const { register, watch, formState: { errors } } = useFormContext<StudentFull>();
   const feeCategory = watch("scholarships.feeCategory");
   const scholarshipType = watch("scholarships.scholarshipType");
   const [showScholarship, setShowScholarship] = useState(false);
+
+  // Note: Form is reset with all data at the page level, no need to sync here
 
   useEffect(() => {
     setShowScholarship(feeCategory === "Scholarship");

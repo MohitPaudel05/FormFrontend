@@ -48,20 +48,22 @@ export const citizenshipSchema = z.object({
   citizenshipNumber: z.string().min(1, "Citizenship Number is required"),
   citizenshipIssueDate: z.string().min(1, "Issue Date is required"),
   citizenshipIssueDistrict: z.string().min(1, "Issue District is required"),
+  citizenshipFrontPhotoPath: z.string().optional(),
+  citizenshipBackPhotoPath: z.string().optional(),
   citizenshipFrontPhoto: z.instanceof(File).refine(
     (file) => file.size <= 2 * 1024 * 1024,
     "Front photo must be less than 2MB"
   ).refine(
     (file) => ["image/jpeg", "image/jpg", "image/png"].includes(file.type),
     "Front photo must be JPG or PNG"
-  ),
+  ).optional(),
   citizenshipBackPhoto: z.instanceof(File).refine(
     (file) => file.size <= 2 * 1024 * 1024,
     "Back photo must be less than 2MB"
   ).refine(
     (file) => ["image/jpeg", "image/jpg", "image/png"].includes(file.type),
     "Back photo must be JPG or PNG"
-  ),
+  ).optional(),
 });
 
 // ===== ADDRESS DTO =====
@@ -134,6 +136,11 @@ export const academicHistorySchema = z.object({
   institution: z.string().min(1, "Institution is required"),
   passedYear: z.string().min(4, "Passed year is required"),
   divisionGPA: z.enum(["First", "Second", "Third", "GPA", "Other"]),
+  marksheetPath: z.string().optional(),
+  provisionalPath: z.string().optional(),
+  photoPath: z.string().optional(),
+  signaturePath: z.string().optional(),
+  characterCertificatePath: z.string().optional(),
   marksheet: z.instanceof(File).optional(),
   provisional: z.instanceof(File).optional(),
   photo: z.instanceof(File).refine(
@@ -142,21 +149,21 @@ export const academicHistorySchema = z.object({
   ).refine(
     (file) => ["image/jpeg", "image/jpg", "image/png"].includes(file.type),
     "Photo must be JPG or PNG"
-  ),
+  ).optional(),
   signature: z.instanceof(File).refine(
     (file) => file.size <= 1 * 1024 * 1024,
     "Signature must be less than 1MB"
   ).refine(
     (file) => ["image/jpeg", "image/jpg", "image/png"].includes(file.type),
     "Signature must be JPG or PNG"
-  ),
+  ).optional(),
   characterCertificate: z.instanceof(File).refine(
     (file) => file.size <= 2 * 1024 * 1024,
     "Character Certificate must be less than 2MB"
   ).refine(
     (file) => ["image/jpeg", "image/jpg", "image/png"].includes(file.type),
     "Character Certificate must be JPG or PNG"
-  ),
+  ).optional(),
 });
 
 // ===== BANK DETAIL DTO =====

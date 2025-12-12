@@ -112,9 +112,14 @@ const StudentApplicationForm = () => {
         branch: ""
       },
       achievements: [],
-      studentExtraInfos: {},
+      studentExtraInfos: {
+        hostellerStatus: "",
+        transportation: "",
+        extracurricularInterests: [],
+        otherInterest: "",
+      },
       declaration: { 
-        isDeclared: false, 
+        isAgreed: false, 
         dateOfApplication: new Date().toISOString().split("T")[0], 
         place: "" 
       },
@@ -136,7 +141,7 @@ const StudentApplicationForm = () => {
       const errorMessage = error.response?.data?.message || error.message || "Failed to submit form. Check browser console for details.";
       setSubmitMessage({ 
         type: "error", 
-        text: `Γ¥î Error: ${errorMessage}`
+        text: `Error: ${errorMessage}`
       });
       // Keep error message visible longer
       setTimeout(() => setShowAlert(false), 8000);

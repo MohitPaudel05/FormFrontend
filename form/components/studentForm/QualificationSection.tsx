@@ -12,23 +12,36 @@ const qualificationOptions = [
   { value: "Masters", label: "Masters" },
 ];
 
-const QualificationSection: React.FC = () => {
+type Props = {
+  fullStudentData?: any;
+};
+
+const QualificationSection: React.FC<Props> = ({ fullStudentData }) => {
   const { control, register, formState: { errors } } = useFormContext<StudentFull>();
+  const [showAllQualifications, setShowAllQualifications] = React.useState(true);
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "academicHistories",
   });
 
+  const hasInitialized = React.useRef(false);
+
   React.useEffect(() => {
-    // Ensure at least one qualification exists
-    if (fields.length === 0) {
+    // Only initialize once and only if no student data exists
+    if (!hasInitialized.current && fields.length === 0 && !fullStudentData?.academicHistories) {
+      hasInitialized.current = true;
       append({ 
         qualification: "SLC", 
         board: "", 
         institution: "", 
         passedYear: "", 
         divisionGPA: "First", 
+        marksheetPath: "",
+        provisionalPath: "",
+        photoPath: "",
+        signaturePath: "",
+        characterCertificatePath: "",
         marksheet: null as any,
         provisional: null as any,
         photo: null as any,
@@ -38,6 +51,9 @@ const QualificationSection: React.FC = () => {
     }
   }, []);
 
+  // Show all items if data exists, otherwise show only first item unless user clicks "Show More"
+  const visibleFields = fullStudentData?.academicHistories?.length > 0 ? fields : (showAllQualifications ? fields : fields.slice(0, 1));
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-6">
@@ -46,14 +62,14 @@ const QualificationSection: React.FC = () => {
       </div>
 
       <div className="space-y-3">
-        {fields.map((field, index) => (
+        {visibleFields.map((field, index) => (
           <div key={field.id} className="border-2 border-yellow-200 rounded-xl p-6 bg-white hover:border-yellow-300 transition-all duration-200">
             {/* Card Header */}
             <div className="flex justify-between items-center mb-6 pb-4 border-b-2 border-yellow-100">
               <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                <span>📚</span> Qualification {index + 1}
+                <span>📚</span> Qualification {index + 1} {index === 0 && <span className="text-red-500 text-sm"></span>}
               </h3>
-              {fields.length > 1 && (
+              {index > 0 && (
                 <button
                   type="button"
                   onClick={() => {
@@ -180,6 +196,22 @@ const QualificationSection: React.FC = () => {
                   {/* Photo Upload */}
                   <div>
                     <label className="block font-semibold text-gray-700 mb-2">Photo <span className="text-red-500">*</span> (Passport Size)</label>
+                    
+                    {/* Display existing photo */}
+                    {fullStudentData?.academicHistories?.[index]?.photoPath && (
+                      <div className="mb-3 p-3 bg-green-50 border-2 border-green-200 rounded-lg">
+                        <p className="text-sm text-green-700 font-semibold mb-2">✅ Current Photo:</p>
+                        <img 
+                          src={`https://localhost:7190/${fullStudentData.academicHistories[index].photoPath}`}
+                          alt="Passport photo"
+                          className="w-full h-32 object-cover rounded-lg"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                    
                     <Controller
                       control={control}
                       name={`academicHistories.${index}.photo`}
@@ -199,12 +231,28 @@ const QualificationSection: React.FC = () => {
                         {errors.academicHistories[index]?.photo?.message}
                       </p>
                     )}
-                    <p className="text-sm text-gray-500 mt-1">JPG/PNG, Max 2MB</p>
+                    <p className="text-sm text-gray-500 mt-1">JPG/PNG, Max 2MB {fullStudentData?.academicHistories?.[index]?.photoPath && '(Optional - leave empty to keep current)'}</p>
                   </div>
 
                   {/* Signature Upload */}
                   <div>
                     <label className="block font-semibold text-gray-700 mb-2">Signature <span className="text-red-500">*</span></label>
+                    
+                    {/* Display existing signature */}
+                    {fullStudentData?.academicHistories?.[index]?.signaturePath && (
+                      <div className="mb-3 p-3 bg-purple-50 border-2 border-purple-200 rounded-lg">
+                        <p className="text-sm text-purple-700 font-semibold mb-2">✅ Current Signature:</p>
+                        <img 
+                          src={`https://localhost:7190/${fullStudentData.academicHistories[index].signaturePath}`}
+                          alt="Signature"
+                          className="w-full h-32 object-cover rounded-lg"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                    
                     <Controller
                       control={control}
                       name={`academicHistories.${index}.signature`}
@@ -224,12 +272,33 @@ const QualificationSection: React.FC = () => {
                         {errors.academicHistories[index]?.signature?.message}
                       </p>
                     )}
-                    <p className="text-sm text-gray-500 mt-1">JPG/PNG, Max 1MB</p>
+                    <p className="text-sm text-gray-500 mt-1">JPG/PNG, Max 1MB {fullStudentData?.academicHistories?.[index]?.signaturePath && '(Optional - leave empty to keep current)'}</p>
                   </div>
 
                   {/* Character Certificate Upload */}
                   <div>
                     <label className="block font-semibold text-gray-700 mb-2">Character Certificate <span className="text-red-500">*</span></label>
+                    
+                    {/* Display existing certificate */}
+                    {fullStudentData?.academicHistories?.[index]?.characterCertificatePath && (
+                      <div className="mb-3 p-3 bg-red-50 border-2 border-red-200 rounded-lg">
+                        <p className="text-sm text-red-700 font-semibold mb-2">✅ Current Certificate:</p>
+                        <img 
+                          src={`https://localhost:7190/${fullStudentData.academicHistories[index].characterCertificatePath}`}
+                          alt="Character Certificate"
+                          className="w-full h-32 object-cover rounded-lg"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            const parent = (e.target as HTMLImageElement).parentElement;
+                            if (parent) {
+                              const filename = fullStudentData.academicHistories[index].characterCertificatePath.split('/').pop();
+                              parent.innerHTML = `<div class="text-xs text-red-600 truncate">📄 ${filename}</div>`;
+                            }
+                          }}
+                        />
+                      </div>
+                    )}
+                    
                     <Controller
                       control={control}
                       name={`academicHistories.${index}.characterCertificate`}
@@ -249,7 +318,7 @@ const QualificationSection: React.FC = () => {
                         {errors.academicHistories[index]?.characterCertificate?.message}
                       </p>
                     )}
-                    <p className="text-sm text-gray-500 mt-1">JPG/JPEG/PNG, Max 2MB</p>
+                    <p className="text-sm text-gray-500 mt-1">JPG/JPEG/PNG, Max 2MB {fullStudentData?.academicHistories?.[index]?.characterCertificatePath && '(Optional - leave empty to keep current)'}</p>
                   </div>
                 </div>
 
@@ -257,6 +326,27 @@ const QualificationSection: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
                   <div>
                     <label className="block font-semibold text-gray-700 mb-2">Marksheet Document</label>
+                    
+                    {/* Display existing marksheet */}
+                    {fullStudentData?.academicHistories?.[index]?.marksheetPath && (
+                      <div className="mb-3 p-3 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                        <p className="text-sm text-blue-700 font-semibold mb-2">✅ Current Marksheet:</p>
+                        <img 
+                          src={`https://localhost:7190/${fullStudentData.academicHistories[index].marksheetPath}`}
+                          alt="Marksheet"
+                          className="w-full h-32 object-cover rounded-lg"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            const parent = (e.target as HTMLImageElement).parentElement;
+                            if (parent) {
+                              const filename = fullStudentData.academicHistories[index].marksheetPath.split('/').pop();
+                              parent.innerHTML = `<div class="text-xs text-blue-600 truncate">📄 ${filename}</div>`;
+                            }
+                          }}
+                        />
+                      </div>
+                    )}
+                    
                     <Controller
                       control={control}
                       name={`academicHistories.${index}.marksheet`}
@@ -265,15 +355,36 @@ const QualificationSection: React.FC = () => {
                           type="file"
                           accept=".pdf,.jpg,.png"
                           onChange={(e) => field.onChange(e.target.files?.[0])}
-                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:border-yellow-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200"
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-yellow-200 focus:border-yellow-500 hover:border-gray-400 transition-all duration-200 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
                         />
                       )}
                     />
-                    <p className="text-sm text-gray-500 mt-1">PDF/JPG/PNG</p>
+                    <p className="text-sm text-gray-500 mt-1">PDF/JPG/PNG {fullStudentData?.academicHistories?.[index]?.marksheetPath && '(Optional - leave empty to keep current)'}</p>
                   </div>
 
                   <div>
                     <label className="block font-semibold text-gray-700 mb-2">Provisional / Admit Card</label>
+                    
+                    {/* Display existing provisional */}
+                    {fullStudentData?.academicHistories?.[index]?.provisionalPath && (
+                      <div className="mb-3 p-3 bg-amber-50 border-2 border-amber-200 rounded-lg">
+                        <p className="text-sm text-amber-700 font-semibold mb-2">✅ Current Provisional:</p>
+                        <img 
+                          src={`https://localhost:7190/${fullStudentData.academicHistories[index].provisionalPath}`}
+                          alt="Provisional / Admit Card"
+                          className="w-full h-32 object-cover rounded-lg"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            const parent = (e.target as HTMLImageElement).parentElement;
+                            if (parent) {
+                              const filename = fullStudentData.academicHistories[index].provisionalPath.split('/').pop();
+                              parent.innerHTML = `<div class="text-xs text-amber-600 truncate">📄 ${filename}</div>`;
+                            }
+                          }}
+                        />
+                      </div>
+                    )}
+                    
                     <Controller
                       control={control}
                       name={`academicHistories.${index}.provisional`}
@@ -286,7 +397,7 @@ const QualificationSection: React.FC = () => {
                         />
                       )}
                     />
-                    <p className="text-sm text-gray-500 mt-1">PDF/JPG/PNG</p>
+                    <p className="text-sm text-gray-500 mt-1">PDF/JPG/PNG {fullStudentData?.academicHistories?.[index]?.provisionalPath && '(Optional - leave empty to keep current)'}</p>
                   </div>
                 </div>
               </div>
@@ -294,6 +405,18 @@ const QualificationSection: React.FC = () => {
           </div>
         ))}
 
+        {/* Show More / Show Less Button */}
+        {fields.length > 1 && (
+          <button
+            type="button"
+            onClick={() => setShowAllQualifications(!showAllQualifications)}
+            className="w-full py-2 text-yellow-600 hover:text-yellow-700 font-semibold text-sm transition-all duration-200"
+          >
+            {showAllQualifications ? '▲ Show Less' : '▼ Show More (' + (fields.length - 1) + ' more)'}
+          </button>
+        )}
+
+        {/* Add More Button */}
         <button
           type="button"
           onClick={() => {
@@ -303,6 +426,11 @@ const QualificationSection: React.FC = () => {
               institution: "", 
               passedYear: "", 
               divisionGPA: "First", 
+              marksheetPath: "",
+              provisionalPath: "",
+              photoPath: "",
+              signaturePath: "",
+              characterCertificatePath: "",
               marksheet: null as any,
               provisional: null as any,
               photo: null as any,
@@ -312,7 +440,7 @@ const QualificationSection: React.FC = () => {
           }}
           className="w-full py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-700 hover:to-yellow-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-lg"
         >
-          <span className="text-lg">+</span> Add Next Qualification
+          <span className="text-lg">+</span> Add More Qualification
         </button>
       </div>
     </div>
@@ -320,3 +448,4 @@ const QualificationSection: React.FC = () => {
 };
 
 export default QualificationSection;
+

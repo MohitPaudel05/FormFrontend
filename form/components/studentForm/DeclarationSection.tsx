@@ -4,7 +4,11 @@ import React from "react";
 import { useFormContext, Controller } from "react-hook-form";
 import { StudentFull } from "../../types/student";
 
-const DeclarationSection: React.FC = () => {
+type Props = {
+  fullStudentData?: any;
+};
+
+const DeclarationSection: React.FC<Props> = ({ fullStudentData }) => {
   const { register, control, watch, formState: { errors } } = useFormContext<StudentFull>();
   
   const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
@@ -27,7 +31,7 @@ const DeclarationSection: React.FC = () => {
               <input
                 type="checkbox"
                 id="declaration"
-                checked={field.value || false}
+                checked={Boolean(field.value)}
                 onChange={(e) => field.onChange(e.target.checked)}
                 className="w-5 h-5 mt-1 rounded border-2 border-gray-300 cursor-pointer transition-all duration-200 accent-violet-600"
               />

@@ -11,7 +11,11 @@ const annualIncomeOptions = [
   { value: "MoreThan20Lakh", label: ">20 Lakh" },
 ];
 
-const ParentGuardianSection: React.FC = () => {
+type Props = {
+  fullStudentData?: any;
+};
+
+const ParentGuardianSection: React.FC<Props> = ({ fullStudentData }) => {
   const { register, control, formState: { errors } } = useFormContext<StudentFull>();
 
   const { fields, append, remove } = useFieldArray({
@@ -27,19 +31,25 @@ const ParentGuardianSection: React.FC = () => {
   const fatherIndex = fields.findIndex(f => f.parentType === "Father");
   const motherIndex = fields.findIndex(f => f.parentType === "Mother");
 
+  const hasInitialized = React.useRef(false);
+
   // Initialize on component mount
   React.useEffect(() => {
-    // Check if Father and Mother already exist
-    const hasFather = fields.some(f => f.parentType === "Father");
-    const hasMother = fields.some(f => f.parentType === "Mother");
-    
-    if (!hasFather) {
-      append({ parentType: "Father", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "", annualFamilyIncome: "" });
+    // Only initialize once and only if no student data exists
+    if (!hasInitialized.current && !fullStudentData?.parents) {
+      hasInitialized.current = true;
+      // Check if Father and Mother already exist
+      const hasFather = fields.some(f => f.parentType === "Father");
+      const hasMother = fields.some(f => f.parentType === "Mother");
+      
+      if (!hasFather) {
+        append({ parentType: "Father", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "", annualFamilyIncome: "" });
+      }
+      if (!hasMother) {
+        append({ parentType: "Mother", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "", annualFamilyIncome: "" });
+      }
     }
-    if (!hasMother) {
-      append({ parentType: "Mother", fullName: "", mobileNumber: "", occupation: "", designation: "", organization: "", email: "", annualFamilyIncome: "" });
-    }
-  }, [append]);
+  }, []);
 
   const renderParentSection = (index: number, relation: string, emoji: string) => {
     if (index === -1 || !fields[index]) return null;
