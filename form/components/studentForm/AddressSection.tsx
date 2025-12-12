@@ -200,15 +200,15 @@ const AddressSection: React.FC<Props> = ({ fullStudentData }) => {
     // Don't render the temporary address fields if SameAsPermanent is selected
     if (index === 1 && isDisabled) {
       return (
-        <div key={index} className="p-6 border-2 border-gray-200 rounded-xl bg-white hover:border-blue-300 transition-all duration-200">
+        <div key={index} className="p-6 border-2 border-blue-200 rounded-xl bg-blue-50 hover:border-blue-300 transition-all duration-200">
           <h3 className="text-lg font-semibold text-gray-800 mb-5 flex items-center gap-2">
-            📍 {addr} Address
+           {addr} Address
           </h3>
           
           {/* Hidden field to store addressType */}
           <input type="hidden" {...register(`addresses.${index}.addressType`)} />
           
-          <div className="flex items-center space-x-3 mb-5 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex items-center space-x-3 mb-5 p-3 bg-blue-100 rounded-lg border border-blue-300">
             <input 
               type="checkbox" 
               id="sameAsAddr"
@@ -224,18 +224,80 @@ const AddressSection: React.FC<Props> = ({ fullStudentData }) => {
             />
             <label htmlFor="sameAsAddr" className="font-medium text-gray-700 cursor-pointer">Same as Permanent Address</label>
           </div>
+
           
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-gray-700">✓ Using permanent address details</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 opacity-75">
+            <div>
+              <label className="block font-semibold text-gray-700 mb-2">Province</label>
+              <input 
+                type="text" 
+                value={permanentProvince || ""} 
+                disabled
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+              />
+              <input type="hidden" {...register(`addresses.${index}.province`)} />
+            </div>
+
+            <div>
+              <label className="block font-semibold text-gray-700 mb-2">District</label>
+              <input 
+                type="text" 
+                value={permanentDistrict || ""} 
+                disabled
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+              />
+              <input type="hidden" {...register(`addresses.${index}.district`)} />
+            </div>
+
+            <div>
+              <label className="block font-semibold text-gray-700 mb-2">Municipality/VDC</label>
+              <input 
+                type="text" 
+                value={permanentMunicipality || ""} 
+                disabled
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+              />
+              <input type="hidden" {...register(`addresses.${index}.municipality`)} />
+            </div>
           </div>
 
-          {/* Hidden inputs for temporary address fields to maintain form structure */}
-          <input type="hidden" {...register(`addresses.${index}.province`)} />
-          <input type="hidden" {...register(`addresses.${index}.district`)} />
-          <input type="hidden" {...register(`addresses.${index}.municipality`)} />
-          <input type="hidden" {...register(`addresses.${index}.wardNumber`)} />
-          <input type="hidden" {...register(`addresses.${index}.tole`)} />
-          <input type="hidden" {...register(`addresses.${index}.houseNumber`)} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5 opacity-75">
+            <div>
+              <label className="block font-semibold text-gray-700 mb-2">Ward Number</label>
+              <input 
+                type="text" 
+                value={permanentWardNumber || ""} 
+                disabled
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+              />
+              <input type="hidden" {...register(`addresses.${index}.wardNumber`)} />
+            </div>
+
+            <div>
+              <label className="block font-semibold text-gray-700 mb-2">Tole/Street</label>
+              <input 
+                type="text" 
+                value={permanentTole || ""} 
+                disabled
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+              />
+              <input type="hidden" {...register(`addresses.${index}.tole`)} />
+            </div>
+
+            <div>
+              <label className="block font-semibold text-gray-700 mb-2">House Number</label>
+              <input 
+                type="text" 
+                value={permanentHouseNumber || ""} 
+                disabled
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+              />
+              <input type="hidden" {...register(`addresses.${index}.houseNumber`)} />
+            </div>
+          </div>
+
+          
         </div>
       );
     }
